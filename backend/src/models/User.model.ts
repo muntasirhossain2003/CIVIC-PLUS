@@ -9,8 +9,10 @@ export interface IUser extends Document {
   departmentId?: Types.ObjectId;
   emailVerified: boolean;
   emailVerifyToken?: string;
+  emailVerifyExpires?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
+  refreshTokenHash?: string;
   notificationPrefs: { email: boolean; inApp: boolean };
   createdAt: Date;
   updatedAt: Date;
@@ -26,8 +28,10 @@ const userSchema = new Schema<IUser>(
     departmentId: { type: Schema.Types.ObjectId, ref: 'Department' },
     emailVerified: { type: Boolean, default: false },
     emailVerifyToken: String,
+    emailVerifyExpires: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    refreshTokenHash: String,
     notificationPrefs: {
       email: { type: Boolean, default: true },
       inApp: { type: Boolean, default: true },
