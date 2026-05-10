@@ -1,38 +1,26 @@
 import { Router } from 'express';
 import { authLimiter } from '../middleware/rateLimiter';
+import { validate } from '../middleware/validate';
+import { authenticate } from '../middleware/auth.middleware';
+import { authController } from '../controllers/auth.controller';
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../schemas/auth.schema';
 
 const router = Router();
 
 router.use(authLimiter);
 
-// POST /api/auth/register
-router.post('/register', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/auth/login
-router.post('/login', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/auth/refresh
-router.post('/refresh', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/auth/forgot-password
-router.post('/forgot-password', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/auth/reset-password
-router.post('/reset-password', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// GET /api/auth/verify-email
-router.get('/verify-email', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
+router.post('/register',        validate(registerSchema),       authController.register);
+router.get('/verify-email',                                     authController.verifyEmail);
+router.post('/login',           validate(loginSchema),          authController.login);
+router.post('/refresh',                                         authController.refresh);
+router.post('/logout',                                          authController.logout);
+router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword);
+router.post('/reset-password',  validate(resetPasswordSchema),  authController.resetPassword);
+router.get('/me',               authenticate,                   authController.me);
 
 export default router;
