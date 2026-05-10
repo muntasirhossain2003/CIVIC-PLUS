@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicPulse — Architecture Graph</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0c0e16; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; }
+    header { padding: 14px 28px; background: #121421; border-bottom: 1px solid #1e2235; display: flex; align-items: center; gap: 14px; }
+    .logo { width: 30px; height: 30px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: white; }
+    header h1 { font-size: 1rem; font-weight: 700; color: #a5b4fc; }
+    header .sub { font-size: 0.74rem; color: #6b7280; }
+    .badge { margin-left: auto; font-size: 0.72rem; color: #6ee7b7; background: #0f2a1e; padding: 3px 10px; border-radius: 999px; border: 1px solid #14532d; }
+    .tab-bar { display: flex; gap: 2px; padding: 12px 24px 0; background: #0e1018; border-bottom: 1px solid #1e2235; overflow-x: auto; }
+    .tab { padding: 7px 16px; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 0.78rem; color: #6b7280; border: 1px solid transparent; border-bottom: none; white-space: nowrap; transition: color 0.15s; user-select: none; }
+    .tab:hover { color: #a5b4fc; }
+    .tab.active { background: #121421; color: #a5b4fc; border-color: #1e2235; border-bottom-color: #121421; margin-bottom: -1px; }
+    .panel { display: none; flex: 1; padding: 24px; overflow: auto; flex-direction: column; gap: 16px; }
+    .panel.active { display: flex; }
+    .card { background: #121421; border: 1px solid #1e2235; border-radius: 10px; padding: 22px; overflow: auto; }
+    .card-title { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin-bottom: 16px; }
+    .mermaid { display: flex; justify-content: center; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.72rem; color: #6b7280; }
+    .li { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .tree { font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 0.8rem; line-height: 1.85; white-space: pre; overflow: auto; }
+    .d  { color: #818cf8; font-weight: 600; }
+    .ts { color: #34d399; }
+    .md { color: #7dd3fc; }
+    .en { color: #f472b6; }
+    .cm { color: #4b5563; font-style: italic; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:900px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">C+</div>
+  <div><h1>CivicPulse</h1><div class="sub">Community Issue Reporting Platform</div></div>
+  <div class="badge">MERN · TypeScript · AWS</div>
+</header>
+<div class="tab-bar">
+  <div class="tab active"  onclick="show('arch')">System Architecture</div>
+  <div class="tab"         onclick="show('backend')">Backend</div>
+  <div class="tab"         onclick="show('frontend')">Frontend</div>
+  <div class="tab"         onclick="show('data')">Data Model</div>
+  <div class="tab"         onclick="show('flow')">Issue Lifecycle</div>
+  <div class="tab"         onclick="show('roles')">User Roles</div>
+  <div class="tab"         onclick="show('tree')">Folder Structure</div>
+</div>
+
+<!-- SYSTEM ARCHITECTURE -->
+<div id="panel-arch" class="panel active">
+  <div class="legend">
+    <div class="li"><div class="dot" style="background:#818cf8"></div> Client</div>
+    <div class="li"><div class="dot" style="background:#34d399"></div> AWS Edge / CDN</div>
+    <div class="li"><div class="dot" style="background:#fbbf24"></div> App Server</div>
+    <div class="li"><div class="dot" style="background:#f87171"></div> Data / Storage</div>
+    <div class="li"><div class="dot" style="background:#c084fc"></div> Real-time</div>
+  </div>
+  <div class="card">
+    <div class="card-title">High-Level System Architecture — AWS Learner Lab</div>
+    <div class="mermaid">
+graph TB
+    subgraph CLIENT["🖥️  Client"]
+        BR["Browser / Mobile\n(React 18 + TypeScript)"]
+    end
+    subgraph EDGE["☁️  AWS Edge"]
+        CF["CloudFront CDN\n(static assets)"]
+        S3W["S3 — React build"]
+    end
+    subgraph SERVER["⚙️  AWS EC2 t2.micro (Ubuntu 24.04)"]
+        NGX["Nginx\n(reverse proxy + SSL via Certbot)"]
+        API["Node.js 20 / Express\n(PM2 cluster)"]
+        SOCK["Socket.io server\n(real-time events)"]
+    end
+    subgraph DATA["🗄️  Data & Services"]
+        MDB["MongoDB Atlas M0\n(external — free tier)"]
+        S3I["S3 — Issue images\n(pre-signed URLs)"]
+        SES["AWS SES\n(sandbox → prod)"]
+        SM["Secrets Manager\n(JWT + DB URI)"]
+        CW["CloudWatch\n(billing alarm + logs)"]
+    end
+    subgraph EXT["🌐  Third-Party"]
+        MAP["Mapbox GL JS\n(maps + geocoding)"]
+    end
+    BR -- "HTTPS" --> CF
+    CF --> S3W
+    CF -- "/api/*" --> NGX
+    NGX --> API
+    API <--> SOCK
+    BR <-.-> SOCK
+    API --> MDB
+    API --> S3I
+    API --> SES
+    API --> SM
+    API -.-> CW
+    BR --> MAP
+    classDef cli  fill:#1a1635,stroke:#818cf8,color:#c7d2fe
+    classDef edge fill:#0f2a1e,stroke:#34d399,color:#6ee7b7
+    classDef srv  fill:#2a1f0f,stroke:#fbbf24,color:#fde68a
+    classDef dat  fill:#2a0f0f,stroke:#f87171,color:#fca5a5
+    classDef ext  fill:#1f0a2a,stroke:#c084fc,color:#d8b4fe
+    class BR cli
+    class CF,S3W edge
+    class NGX,API,SOCK srv
+    class MDB,S3I,SES,SM,CW dat
+    class MAP ext
+    </div>
+  </div>
+</div>
+
+<!-- BACKEND -->
+<div id="panel-backend" class="panel">
+  <div class="card">
+    <div class="card-title">Backend — Express + TypeScript (backend/)</div>
+    <div class="mermaid">
+graph LR
+    ENTRY["app.ts\n(Express entrypoint)"]:::entry
+    ENTRY --> MW["Middleware Stack"]:::mw
+    MW --> MW1["helmet"]:::mw
+    MW --> MW2["CORS whitelist"]:::mw
+    MW --> MW3["rate limiter"]:::mw
+    MW --> MW4["mongo-sanitize"]:::mw
+    MW --> MW5["JWT auth"]:::mw
+    MW --> MW6["role guard"]:::mw
+    MW --> MW7["zod validate"]:::mw
+    ENTRY --> ROUTES["Routes"]:::route
+    ROUTES --> RA["/api/auth"]:::route
+    ROUTES --> RI["/api/issues"]:::route
+    ROUTES --> RU["/api/uploads"]:::route
+    ROUTES --> RAN["/api/analytics"]:::route
+    ROUTES --> RADM["/api/admin"]:::route
+    RA --> CA["AuthController"]:::ctrl
+    RI --> CI["IssueController"]:::ctrl
+    RU --> CU["UploadController"]:::ctrl
+    RAN --> CAN["AnalyticsController"]:::ctrl
+    RADM --> CADM["AdminController"]:::ctrl
+    CA --> SA["AuthService"]:::svc
+    CI --> SI["IssueService"]:::svc
+    CI --> SN["NotificationService"]:::svc
+    CU --> SS3["S3Service"]:::svc
+    CAN --> SAN["AnalyticsService"]:::svc
+    CADM --> SAU["AdminService"]:::svc
+    SA --> MU["User model"]:::model
+    SI --> MIS["Issue model\n(2dsphere index)"]:::model
+    SI --> MCM["Comment model"]:::model
+    SI --> MUV["Upvote model"]:::model
+    SI --> MF["Follow model"]:::model
+    SN --> MNT["Notification model"]:::model
+    SAU --> MDT["Department model"]:::model
+    SAU --> MCAT["Category model"]:::model
+    SAU --> MAL["AuditLog model"]:::model
+    ENTRY --> WSOCK["Socket.io\n(real-time events)"]:::sock
+    SN --> WSOCK
+    classDef entry fill:#1e2235,stroke:#818cf8,color:#a5b4fc,font-weight:bold
+    classDef mw    fill:#0f1a2a,stroke:#7dd3fc,color:#bae6fd
+    classDef route fill:#2a1a0f,stroke:#fb923c,color:#fdba74
+    classDef ctrl  fill:#2a1f0f,stroke:#fbbf24,color:#fde68a
+    classDef svc   fill:#1f0a2a,stroke:#c084fc,color:#d8b4fe
+    classDef model fill:#0f2a1e,stroke:#34d399,color:#6ee7b7
+    classDef sock  fill:#2a0f1a,stroke:#f472b6,color:#fbcfe8
+    </div>
+  </div>
+</div>
+
+<!-- FRONTEND -->
+<div id="panel-frontend" class="panel">
+  <div class="card">
+    <div class="card-title">Frontend — React 18 + Vite + TypeScript (frontend/)</div>
+    <div class="mermaid">
+graph TD
+    MAIN["main.tsx"]:::entry --> APP["App.tsx\n(React Router v6)"]:::entry
+    APP --> PUBLIC["Public routes"]:::pub
+    APP --> CITIZEN["Citizen routes\n(auth required)"]:::cit
+    APP --> STAFF["Staff routes\n(role: staff)"]:::stf
+    APP --> ADMIN["Admin routes\n(role: admin)"]:::adm
+    PUBLIC --> PG1["/ — Home + Live Map"]:::pub
+    PUBLIC --> PG2["/issues"]:::pub
+    PUBLIC --> PG3["/issues/:id"]:::pub
+    PUBLIC --> PG4["/transparency"]:::pub
+    PUBLIC --> PG5["/login · /register · /verify"]:::pub
+    CITIZEN --> CG1["/report"]:::cit
+    CITIZEN --> CG2["/dashboard"]:::cit
+    CITIZEN --> CG3["/notifications · /profile"]:::cit
+    STAFF --> SG1["/staff/queue"]:::stf
+    STAFF --> SG2["/staff/issues/:id"]:::stf
+    ADMIN --> AG1["/admin/analytics"]:::adm
+    ADMIN --> AG2["/admin/users · /departments · /categories"]:::adm
+    APP --> STORE["Zustand stores"]:::store
+    STORE --> ST1["authStore"]:::store
+    STORE --> ST2["notifStore"]:::store
+    STORE --> ST3["filterStore"]:::store
+    APP --> SOCK2["Socket.io-client\n(real-time)"]:::sock
+    classDef entry fill:#1e2235,stroke:#818cf8,color:#a5b4fc,font-weight:bold
+    classDef pub   fill:#0f2a1e,stroke:#34d399,color:#6ee7b7
+    classDef cit   fill:#2a1f0f,stroke:#fbbf24,color:#fde68a
+    classDef stf   fill:#0f1a2a,stroke:#7dd3fc,color:#bae6fd
+    classDef adm   fill:#2a0f0f,stroke:#f87171,color:#fca5a5
+    classDef store fill:#1f0a2a,stroke:#c084fc,color:#d8b4fe
+    classDef sock  fill:#2a0f1a,stroke:#f472b6,color:#fbcfe8
+    </div>
+  </div>
+</div>
+
+<!-- DATA MODEL -->
+<div id="panel-data" class="panel">
+  <div class="card">
+    <div class="card-title">MongoDB Collections &amp; Relationships</div>
+    <div class="mermaid">
+erDiagram
+    USERS { ObjectId _id PK; string name; string email; string passwordHash; enum role; ObjectId departmentId FK; bool emailVerified; date createdAt }
+    ISSUES { ObjectId _id PK; string title; string description; enum category; enum severity; enum status; Point location; string address; array photos; ObjectId reporterId FK; ObjectId assignedDepartmentId FK; int upvoteCount; date slaDeadline; date createdAt }
+    COMMENTS { ObjectId _id PK; ObjectId issueId FK; ObjectId authorId FK; string text; date createdAt }
+    UPVOTES { ObjectId _id PK; ObjectId issueId FK; ObjectId userId FK }
+    FOLLOWS { ObjectId _id PK; ObjectId issueId FK; ObjectId userId FK }
+    NOTIFICATIONS { ObjectId _id PK; ObjectId userId FK; ObjectId issueId FK; enum type; bool read; date createdAt }
+    DEPARTMENTS { ObjectId _id PK; string name; array staffIds }
+    CATEGORIES { ObjectId _id PK; string name; int slaHours }
+    AUDITLOGS { ObjectId _id PK; ObjectId actorId FK; string action; date createdAt }
+    USERS ||--o{ ISSUES : "reports"
+    USERS ||--o{ COMMENTS : "writes"
+    USERS ||--o{ UPVOTES : "casts"
+    USERS ||--o{ FOLLOWS : "follows"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    ISSUES ||--o{ COMMENTS : "has"
+    ISSUES ||--o{ UPVOTES : "receives"
+    ISSUES ||--o{ FOLLOWS : "has"
+    DEPARTMENTS ||--o{ ISSUES : "assigned"
+    CATEGORIES ||--o{ ISSUES : "classifies"
+    </div>
+  </div>
+</div>
+
+<!-- ISSUE LIFECYCLE -->
+<div id="panel-flow" class="panel">
+  <div class="card">
+    <div class="card-title">Issue Status Lifecycle</div>
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> Submitted : Citizen submits report
+    Submitted --> DuplicateCheck : Auto-check 50m radius
+    DuplicateCheck --> Submitted : No duplicate
+    DuplicateCheck --> ExistingIssue : Duplicate found — offer upvote
+    Submitted --> Acknowledged : Staff/Admin action
+    Submitted --> Rejected : Invalid / out-of-scope
+    Submitted --> Deleted : Reporter deletes (within 1hr)
+    Acknowledged --> InProgress : Department + staff assigned
+    InProgress --> Resolved : Resolution notes added
+    InProgress --> Rejected : Staff rejects with reason
+    Resolved --> [*]
+    Rejected --> [*]
+    Deleted --> [*]
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Duplicate Detection Flow</div>
+    <div class="mermaid">
+flowchart TD
+    A["Citizen clicks Submit"]:::c
+    B{"MongoDB 2dsphere query\n50m radius · same category\nlast 30 days"}:::q
+    C["No duplicates — create issue"]:::ok
+    D["Duplicate found"]:::w
+    E["Show existing issue(s)"]:::u
+    F{"Citizen choice"}:::ch
+    G["Upvote existing"]:::up
+    H["Proceed — link to cluster"]:::pr
+    A --> B
+    B -->|no match| C
+    B -->|match| D --> E --> F
+    F -->|upvote| G
+    F -->|proceed| H
+    classDef c  fill:#1a1635,stroke:#818cf8,color:#c7d2fe
+    classDef q  fill:#0f1a2a,stroke:#7dd3fc,color:#bae6fd
+    classDef ok fill:#0f2a1e,stroke:#34d399,color:#6ee7b7
+    classDef w  fill:#2a1f0f,stroke:#fbbf24,color:#fde68a
+    classDef u  fill:#1f0a2a,stroke:#c084fc,color:#d8b4fe
+    classDef ch fill:#1e2235,stroke:#818cf8,color:#a5b4fc
+    classDef up fill:#2a0f0f,stroke:#f87171,color:#fca5a5
+    classDef pr fill:#0f2a1e,stroke:#34d399,color:#6ee7b7
+    </div>
+  </div>
+</div>
+
+<!-- USER ROLES -->
+<div id="panel-roles" class="panel">
+  <div class="card">
+    <div class="card-title">User Role Capabilities</div>
+    <div class="mermaid">
+graph TD
+    subgraph PUBLIC["👁️ Public"]
+        PB1["View map · Browse issues\nTransparency dashboard"]
+    end
+    subgraph CITIZEN["👤 Citizen"]
+        C1["Register + verify email"]
+        C2["Submit issue (location + photos)"]
+        C3["Edit/delete own (1hr window)"]
+        C4["Upvote · Follow · Comment"]
+        C5["Email + in-app notifications"]
+    end
+    subgraph STAFF["🛠️ Staff"]
+        S1["All citizen capabilities"]
+        S2["View department queue"]
+        S3["Acknowledge → In Progress → Resolved"]
+        S4["Add resolution notes + photos"]
+        S5["Reject with reason · Moderate comments"]
+    end
+    subgraph ADMIN["⚙️ Admin"]
+        A1["All staff capabilities"]
+        A2["Assign issues to departments/staff"]
+        A3["Manage users · departments · categories"]
+        A4["Admin analytics · CSV export"]
+        A5["View audit log"]
+    end
+    PUBLIC -.->|sign up| CITIZEN
+    CITIZEN -.->|role: staff| STAFF
+    STAFF -.->|role: admin| ADMIN
+    </div>
+  </div>
+</div>
+
+<!-- FOLDER STRUCTURE -->
+<div id="panel-tree" class="panel">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">backend/ — civicpulse-api</div>
+      <div class="tree">
+<span class="d">backend/</span>
+├── <span class="d">src/</span>
+│   ├── <span class="d">config/</span>
+│   │   ├── <span class="ts">db.ts</span>              <span class="cm"># Mongoose connect</span>
+│   │   └── <span class="ts">env.ts</span>             <span class="cm"># zod env validation</span>
+│   ├── <span class="d">controllers/</span>
+│   │   ├── <span class="ts">auth.controller.ts</span>
+│   │   ├── <span class="ts">issue.controller.ts</span>
+│   │   ├── <span class="ts">upload.controller.ts</span>
+│   │   ├── <span class="ts">analytics.controller.ts</span>
+│   │   └── <span class="ts">admin.controller.ts</span>
+│   ├── <span class="d">services/</span>
+│   │   ├── <span class="ts">auth.service.ts</span>
+│   │   ├── <span class="ts">issue.service.ts</span>
+│   │   ├── <span class="ts">notification.service.ts</span>
+│   │   ├── <span class="ts">email.service.ts</span>   <span class="cm"># AWS SES</span>
+│   │   ├── <span class="ts">s3.service.ts</span>      <span class="cm"># pre-signed URLs</span>
+│   │   └── <span class="ts">analytics.service.ts</span>
+│   ├── <span class="d">models/</span>
+│   │   ├── <span class="ts">User.model.ts</span>
+│   │   ├── <span class="ts">Issue.model.ts</span>     <span class="cm"># 2dsphere index</span>
+│   │   ├── <span class="ts">Comment.model.ts</span>
+│   │   ├── <span class="ts">Upvote.model.ts</span>
+│   │   ├── <span class="ts">Follow.model.ts</span>
+│   │   ├── <span class="ts">Notification.model.ts</span>
+│   │   ├── <span class="ts">Department.model.ts</span>
+│   │   ├── <span class="ts">Category.model.ts</span>
+│   │   └── <span class="ts">AuditLog.model.ts</span>
+│   ├── <span class="d">routes/</span>
+│   │   ├── <span class="ts">auth.routes.ts</span>
+│   │   ├── <span class="ts">issue.routes.ts</span>
+│   │   ├── <span class="ts">upload.routes.ts</span>
+│   │   ├── <span class="ts">analytics.routes.ts</span>
+│   │   └── <span class="ts">admin.routes.ts</span>
+│   ├── <span class="d">middleware/</span>
+│   │   ├── <span class="ts">auth.middleware.ts</span>
+│   │   ├── <span class="ts">role.middleware.ts</span>
+│   │   ├── <span class="ts">rateLimiter.ts</span>
+│   │   └── <span class="ts">validate.ts</span>
+│   ├── <span class="d">socket/</span>
+│   │   └── <span class="ts">events.ts</span>
+│   ├── <span class="d">utils/</span>
+│   │   ├── <span class="ts">jwt.ts</span>
+│   │   └── <span class="ts">logger.ts</span>
+│   ├── <span class="d">types/</span>
+│   │   └── <span class="ts">index.d.ts</span>
+│   └── <span class="ts">app.ts</span>
+├── <span class="d">tests/</span>
+├── <span class="en">.env.example</span>
+├── <span class="md">Dockerfile</span>
+└── <span class="ts">tsconfig.json</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">frontend/ — civicpulse-web</div>
+      <div class="tree">
+<span class="d">frontend/</span>
+├── <span class="d">src/</span>
+│   ├── <span class="d">screens/</span>
+│   │   ├── <span class="d">citizen-home/</span>     <span class="cm"># Live map + ticker</span>
+│   │   ├── <span class="d">report-flow/</span>      <span class="cm"># Multi-step form</span>
+│   │   ├── <span class="d">issue-detail/</span>     <span class="cm"># Timeline + comments</span>
+│   │   ├── <span class="d">transparency/</span>     <span class="cm"># Public stats</span>
+│   │   └── <span class="d">staff-queue/</span>      <span class="cm"># Kanban board</span>
+│   ├── <span class="d">components/</span>
+│   │   ├── <span class="d">ui/</span>               <span class="cm"># StatusPill, Btn, Eyebrow…</span>
+│   │   ├── <span class="d">map/</span>              <span class="cm"># PulseMap, MapPin</span>
+│   │   ├── <span class="d">feed/</span>             <span class="cm"># LiveTicker</span>
+│   │   ├── <span class="d">timeline/</span>         <span class="cm"># StatusTimeline, SLABar</span>
+│   │   └── <span class="d">analytics/</span>        <span class="cm"># TrendChart, Heatmap</span>
+│   ├── <span class="d">store/</span>             <span class="cm"># Zustand</span>
+│   │   ├── <span class="ts">authStore.ts</span>
+│   │   ├── <span class="ts">notifStore.ts</span>
+│   │   └── <span class="ts">filterStore.ts</span>
+│   ├── <span class="d">lib/</span>
+│   │   ├── <span class="ts">api.ts</span>            <span class="cm"># TanStack Query + axios</span>
+│   │   ├── <span class="ts">socket.ts</span>         <span class="cm"># Socket.io-client</span>
+│   │   └── <span class="ts">tokens.css</span>        <span class="cm"># CSS design tokens</span>
+│   ├── <span class="d">types/</span>
+│   │   └── <span class="ts">index.ts</span>
+│   └── <span class="ts">main.tsx</span>
+├── <span class="en">.env.example</span>
+├── <span class="md">Dockerfile</span>
+└── <span class="ts">vite.config.ts</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true, theme: 'dark',
+    themeVariables: {
+      background: '#121421', primaryColor: '#1e2235',
+      primaryTextColor: '#e2e8f0', primaryBorderColor: '#818cf8',
+      lineColor: '#4b5563', secondaryColor: '#121421',
+      clusterBkg: '#0e1018', clusterBorder: '#1e2235',
+    },
+    flowchart: { curve: 'basis', padding: 18 },
+    er: { diagramPadding: 20 },
+  });
+  function show(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

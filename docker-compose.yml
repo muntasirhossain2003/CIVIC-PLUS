@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend/src:/app/src   # hot-reload in dev via tsx watch
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+
+# Usage:
+#   docker compose up --build
+#
+# NOTE: For production, replace the local `mongo` service with MongoDB Atlas
+# and set MONGODB_URI in backend/.env accordingly.
+# AWS Learner Lab credentials must be refreshed every 4 hours in backend/.env.

@@ -1,0 +1,91 @@
+/* CivicPulse — "Civic Blueprint" design tokens */
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  /* Canvas */
+  --ink:        #0B1220;
+  --ink-2:      #131D33;
+  --ink-3:      #1B2740;
+
+  /* Lines */
+  --line:       rgba(245, 235, 215, 0.10);
+  --line-2:     rgba(245, 235, 215, 0.18);
+
+  /* Paper surfaces */
+  --paper:      #F2EBDD;
+  --paper-2:    #E7DFCB;
+  --paper-line: rgba(11, 18, 32, 0.10);
+
+  /* Text */
+  --bone:       #F5F1E8;
+  --muted:      #94A3BC;
+  --muted-2:    #6A7790;
+
+  /* Status accents */
+  --pulse:      oklch(0.78 0.16 65);   /* electric amber — live/active */
+  --pulse-soft: oklch(0.78 0.16 65 / 0.18);
+  --civic:      oklch(0.70 0.13 152);  /* resolved green */
+  --alert:      oklch(0.66 0.21 25);   /* overdue red */
+  --sky:        oklch(0.74 0.10 230);  /* in-progress blue */
+
+  /* Typography */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-sans:    'Space Grotesk', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing rhythm */
+  --screen-px: clamp(20px, 5vw, 48px);
+  --radius-card: 4px;   /* sharp, document-like */
+}
+
+/* Grid backdrop */
+body {
+  background-color: var(--ink);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-attachment: fixed;
+  color: var(--bone);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Status color map */
+[data-status="submitted"]    { --status-color: var(--muted); }
+[data-status="acknowledged"] { --status-color: var(--pulse); }
+[data-status="in_progress"]  { --status-color: var(--sky); }
+[data-status="resolved"]     { --status-color: var(--civic); }
+[data-status="rejected"]     { --status-color: var(--alert); }
+
+/* Pulse ring animation — brand motion */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--pulse-soft); }
+  50%       { opacity: 0.6; box-shadow: 0 0 0 6px transparent; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ticker-bump {
+  0%   { background-color: var(--pulse-soft); }
+  100% { background-color: transparent; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
