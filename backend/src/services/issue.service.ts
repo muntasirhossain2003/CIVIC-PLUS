@@ -7,6 +7,7 @@ import {
   CreateIssueInput, UpdateIssueInput, UpdateStatusInput,
   ListIssuesInput, NearbyInput, AddCommentInput,
 } from '../schemas/issue.schema';
+import { emitIssueNew, emitStatusChanged, emitNotification } from '../socket/events';
 
 function fail(message: string, status: number): never {
   throw Object.assign(new Error(message), { status });
@@ -26,6 +27,7 @@ export const issueService = {
       statusHistory: [{ status: 'submitted', changedBy: reporterId, changedAt: new Date() }],
     });
 
+    emitIssueNew(issue.toObject());
     return issue;
   },
 
@@ -144,6 +146,19 @@ export const issueService = {
     if (input.rejectionReason) issue.rejectionReason = input.rejectionReason;
 
     await issue.save();
+
+    // Broadcast to all clients and notify every follower
+    emitStatusChanged(id, input.status);
+    const followers = await Follow.find({ issueId: id }).lean();
+    for (const f of followers) {
+      emitNotification(f.userId.toString(), {
+        type: 'status_changed',
+        issueId: id,
+        issueTitle: issue.title,
+        newStatus: input.status,
+      });
+    }
+
     return issue;
   },
 
