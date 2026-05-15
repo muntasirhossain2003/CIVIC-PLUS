@@ -5,6 +5,7 @@ import { authenticate } from '../middleware/auth.middleware';
 import { authController } from '../controllers/auth.controller';
 import {
   registerSchema,
+  confirmEmailSchema,
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
@@ -15,7 +16,8 @@ const router = Router();
 router.use(authLimiter);
 
 router.post('/register',        validate(registerSchema),       authController.register);
-router.get('/verify-email',                                     authController.verifyEmail);
+router.post('/confirm-email',   validate(confirmEmailSchema),   authController.confirmEmail);
+router.post('/resend-code',                                     authController.resendCode);
 router.post('/login',           validate(loginSchema),          authController.login);
 router.post('/refresh',                                         authController.refresh);
 router.post('/logout',                                          authController.logout);

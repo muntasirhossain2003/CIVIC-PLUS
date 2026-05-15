@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { authService } from '../services/auth.service';
 import { AuthRequest } from '../types/index.d';
+import { User } from '../models/User.model';
 
 const REFRESH_COOKIE = 'refreshToken';
 const COOKIE_OPTS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days (Cognito refresh tokens last 30d by default)
 };
 
 function handleError(res: Response, err: unknown) {
@@ -23,20 +24,25 @@ export const authController = {
     } catch (err) { handleError(res, err); }
   },
 
-  async verifyEmail(req: Request, res: Response) {
+  async confirmEmail(req: Request, res: Response) {
     try {
-      const { token } = req.query as { token: string };
-      if (!token) { res.status(400).json({ message: 'Token is required' }); return; }
-      const result = await authService.verifyEmail(token);
+      const result = await authService.confirmEmail(req.body);
+      res.json(result);
+    } catch (err) { handleError(res, err); }
+  },
+
+  async resendCode(req: Request, res: Response) {
+    try {
+      const result = await authService.resendCode(req.body.email);
       res.json(result);
     } catch (err) { handleError(res, err); }
   },
 
   async login(req: Request, res: Response) {
     try {
-      const { accessToken, refreshToken, user } = await authService.login(req.body);
+      const { accessToken, idToken, refreshToken, expiresIn, user } = await authService.login(req.body);
       res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTS);
-      res.json({ accessToken, user });
+      res.json({ accessToken, idToken, expiresIn, user });
     } catch (err) { handleError(res, err); }
   },
 
@@ -49,10 +55,12 @@ export const authController = {
     } catch (err) { handleError(res, err); }
   },
 
-  async logout(req: Request, res: Response) {
+  async logout(req: AuthRequest, res: Response) {
     try {
-      const token = req.cookies[REFRESH_COOKIE];
-      if (token) await authService.logout(token);
+      const header = req.headers.authorization;
+      if (header?.startsWith('Bearer ')) {
+        await authService.logout(header.slice(7));
+      }
       res.clearCookie(REFRESH_COOKIE);
       res.json({ message: 'Logged out' });
     } catch (err) { handleError(res, err); }
@@ -67,12 +75,15 @@ export const authController = {
 
   async resetPassword(req: Request, res: Response) {
     try {
-      const result = await authService.resetPassword(req.body.token, req.body.password);
+      const result = await authService.resetPassword(req.body);
       res.json(result);
     } catch (err) { handleError(res, err); }
   },
 
   async me(req: AuthRequest, res: Response) {
-    res.json({ user: req.user });
+    try {
+      const user = await User.findById(req.user!.id).select('-__v');
+      res.json({ user });
+    } catch (err) { handleError(res, err); }
   },
 };
