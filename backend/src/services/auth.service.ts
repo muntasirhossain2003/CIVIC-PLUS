@@ -1,128 +1,157 @@
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
+import {
+  CognitoIdentityProviderClient,
+  SignUpCommand,
+  ConfirmSignUpCommand,
+  InitiateAuthCommand,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
+  GlobalSignOutCommand,
+  ResendConfirmationCodeCommand,
+} from '@aws-sdk/client-cognito-identity-provider';
+import { env } from '../config/env';
 import { User } from '../models/User.model';
-import { emailService } from './email.service';
-import { signAccessToken, signRefreshToken, verifyToken } from '../utils/jwt';
-import { RegisterInput, LoginInput } from '../schemas/auth.schema';
+import { RegisterInput, ConfirmEmailInput, LoginInput, ResetPasswordInput } from '../schemas/auth.schema';
 
-function generateToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
+const cognito = new CognitoIdentityProviderClient({
+  region: env.AWS_REGION,
+  credentials: env.AWS_ACCESS_KEY_ID
+    ? {
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
+        sessionToken: env.AWS_SESSION_TOKEN,
+      }
+    : undefined,
+});
 
-function hashToken(token: string) {
-  return crypto.createHash('sha256').update(token).digest('hex');
+function fail(message: string, status: number): never {
+  throw Object.assign(new Error(message), { status });
 }
 
 export const authService = {
   async register(input: RegisterInput) {
-    const existing = await User.findOne({ email: input.email });
-    if (existing) throw Object.assign(new Error('Email already in use'), { status: 409 });
+    const { UserSub } = await cognito.send(
+      new SignUpCommand({
+        ClientId: env.COGNITO_CLIENT_ID,
+        Username: input.email,
+        Password: input.password,
+        UserAttributes: [
+          { Name: 'name',  Value: input.name },
+          { Name: 'email', Value: input.email },
+          ...(input.phone ? [{ Name: 'phone_number', Value: input.phone }] : []),
+        ],
+      }),
+    ).catch((err) => fail(err.message ?? 'Registration failed', 400));
 
-    const passwordHash = await bcrypt.hash(input.password, 12);
-    const verifyToken = generateToken();
-
-    const user = await User.create({
-      name: input.name,
+    // Create MongoDB profile immediately — linked by Cognito sub
+    await User.create({
+      cognitoSub: UserSub,
+      name:  input.name,
       email: input.email,
-      passwordHash,
       phone: input.phone,
-      emailVerifyToken: hashToken(verifyToken),
-      emailVerifyExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
     });
 
-    await emailService.sendVerification(user.email, verifyToken);
-
-    return { message: 'Registered. Check your email to verify your account.' };
+    return { message: 'Account created. Check your email for a 6-digit verification code.' };
   },
 
-  async verifyEmail(token: string) {
-    const hashed = hashToken(token);
-    const user = await User.findOne({
-      emailVerifyToken: hashed,
-      emailVerifyExpires: { $gt: new Date() },
-    });
-    if (!user) throw Object.assign(new Error('Invalid or expired verification link'), { status: 400 });
-
-    user.emailVerified = true;
-    user.emailVerifyToken = undefined;
-    user.emailVerifyExpires = undefined;
-    await user.save();
+  async confirmEmail(input: ConfirmEmailInput) {
+    await cognito.send(
+      new ConfirmSignUpCommand({
+        ClientId: env.COGNITO_CLIENT_ID,
+        Username: input.email,
+        ConfirmationCode: input.code,
+      }),
+    ).catch((err) => fail(err.message ?? 'Confirmation failed', 400));
 
     return { message: 'Email verified. You can now log in.' };
   },
 
+  async resendCode(email: string) {
+    await cognito.send(
+      new ResendConfirmationCodeCommand({
+        ClientId: env.COGNITO_CLIENT_ID,
+        Username: email,
+      }),
+    ).catch((err) => fail(err.message ?? 'Could not resend code', 400));
+
+    return { message: 'Verification code resent.' };
+  },
+
   async login(input: LoginInput) {
+    const result = await cognito.send(
+      new InitiateAuthCommand({
+        AuthFlow: 'USER_PASSWORD_AUTH',
+        ClientId: env.COGNITO_CLIENT_ID,
+        AuthParameters: {
+          USERNAME: input.email,
+          PASSWORD: input.password,
+        },
+      }),
+    ).catch((err) => fail(err.message ?? 'Invalid email or password', 401));
+
+    const tokens = result.AuthenticationResult;
+    if (!tokens) fail('Authentication failed', 401);
+
     const user = await User.findOne({ email: input.email });
-    if (!user) throw Object.assign(new Error('Invalid email or password'), { status: 401 });
-
-    const valid = await bcrypt.compare(input.password, user.passwordHash);
-    if (!valid) throw Object.assign(new Error('Invalid email or password'), { status: 401 });
-
-    if (!user.emailVerified)
-      throw Object.assign(new Error('Please verify your email before logging in'), { status: 403 });
-
-    const payload = { id: user._id.toString(), role: user.role, departmentId: user.departmentId?.toString() };
-    const accessToken = signAccessToken(payload);
-    const refreshToken = signRefreshToken(payload);
-
-    user.refreshTokenHash = hashToken(refreshToken);
-    await user.save();
+    if (!user) fail('User profile not found', 404);
 
     return {
-      accessToken,
-      refreshToken,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      accessToken:  tokens.AccessToken!,
+      idToken:      tokens.IdToken!,
+      refreshToken: tokens.RefreshToken!,
+      expiresIn:    tokens.ExpiresIn!,
+      user: {
+        id:    user._id,
+        name:  user.name,
+        email: user.email,
+        role:  user.role,
+      },
     };
   },
 
   async refresh(refreshToken: string) {
-    let payload: { id: string; role: string; departmentId?: string };
-    try {
-      payload = verifyToken(refreshToken) as typeof payload;
-    } catch {
-      throw Object.assign(new Error('Invalid refresh token'), { status: 401 });
-    }
+    const result = await cognito.send(
+      new InitiateAuthCommand({
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
+        ClientId: env.COGNITO_CLIENT_ID,
+        AuthParameters: { REFRESH_TOKEN: refreshToken },
+      }),
+    ).catch(() => fail('Invalid or expired refresh token', 401));
 
-    const user = await User.findById(payload.id);
-    if (!user || user.refreshTokenHash !== hashToken(refreshToken))
-      throw Object.assign(new Error('Refresh token revoked'), { status: 401 });
+    const tokens = result.AuthenticationResult;
+    if (!tokens) fail('Token refresh failed', 401);
 
-    const newAccessToken = signAccessToken({ id: user._id.toString(), role: user.role, departmentId: user.departmentId?.toString() });
-    return { accessToken: newAccessToken };
+    return {
+      accessToken: tokens.AccessToken!,
+      idToken:     tokens.IdToken!,
+      expiresIn:   tokens.ExpiresIn!,
+    };
   },
 
-  async logout(refreshToken: string) {
-    const payload = verifyToken(refreshToken) as { id: string };
-    await User.findByIdAndUpdate(payload.id, { $unset: { refreshTokenHash: 1 } });
+  async logout(accessToken: string) {
+    // GlobalSignOut invalidates ALL sessions for this user in Cognito
+    await cognito.send(new GlobalSignOutCommand({ AccessToken: accessToken })).catch(() => {});
   },
 
   async forgotPassword(email: string) {
-    const user = await User.findOne({ email });
-    // Always return success — don't leak whether email exists
-    if (!user) return { message: 'If that email exists, a reset link has been sent.' };
+    await cognito.send(
+      new ForgotPasswordCommand({
+        ClientId: env.COGNITO_CLIENT_ID,
+        Username: email,
+      }),
+    ).catch(() => {}); // Always succeed — don't reveal if email exists
 
-    const token = generateToken();
-    user.passwordResetToken = hashToken(token);
-    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
-    await user.save();
-
-    await emailService.sendPasswordReset(email, token);
-    return { message: 'If that email exists, a reset link has been sent.' };
+    return { message: 'If that account exists, a 6-digit reset code has been sent to your email.' };
   },
 
-  async resetPassword(token: string, newPassword: string) {
-    const hashed = hashToken(token);
-    const user = await User.findOne({
-      passwordResetToken: hashed,
-      passwordResetExpires: { $gt: new Date() },
-    });
-    if (!user) throw Object.assign(new Error('Invalid or expired reset link'), { status: 400 });
-
-    user.passwordHash = await bcrypt.hash(newPassword, 12);
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    user.refreshTokenHash = undefined; // invalidate all sessions
-    await user.save();
+  async resetPassword(input: ResetPasswordInput) {
+    await cognito.send(
+      new ConfirmForgotPasswordCommand({
+        ClientId: env.COGNITO_CLIENT_ID,
+        Username: input.email,
+        ConfirmationCode: input.code,
+        Password: input.password,
+      }),
+    ).catch((err) => fail(err.message ?? 'Invalid or expired code', 400));
 
     return { message: 'Password reset successful. You can now log in.' };
   },
