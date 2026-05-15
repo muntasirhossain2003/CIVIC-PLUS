@@ -14,6 +14,7 @@ import { ResetPassword }  from './screens/auth/ResetPassword';
 
 // Screens
 import { Transparency } from './screens/transparency/Transparency';
+import { CitizenHome }  from './screens/citizen-home/CitizenHome';
 
 // Placeholder for screens being built
 function Placeholder({ name }: { name: string }) {
@@ -62,7 +63,7 @@ export default function App() {
           {/* All app screens inside Shell (sidebar + main) */}
           <Route element={<ShellLayout />}>
             {/* Public */}
-            <Route path="/"             element={<Placeholder name="CitizenHome / Live Map" />} />
+            <Route path="/"             element={<CitizenHome />} />
             <Route path="/issues"       element={<Placeholder name="Issue List" />} />
             <Route path="/issues/:id"   element={<Placeholder name="Issue Detail" />} />
             <Route path="/transparency" element={<Transparency />} />
