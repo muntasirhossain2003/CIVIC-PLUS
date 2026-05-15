@@ -12,6 +12,9 @@ import { VerifyEmail }    from './screens/auth/VerifyEmail';
 import { ForgotPassword } from './screens/auth/ForgotPassword';
 import { ResetPassword }  from './screens/auth/ResetPassword';
 
+// Screens
+import { Transparency } from './screens/transparency/Transparency';
+
 // Placeholder for screens being built
 function Placeholder({ name }: { name: string }) {
   return (
@@ -62,7 +65,7 @@ export default function App() {
             <Route path="/"             element={<Placeholder name="CitizenHome / Live Map" />} />
             <Route path="/issues"       element={<Placeholder name="Issue List" />} />
             <Route path="/issues/:id"   element={<Placeholder name="Issue Detail" />} />
-            <Route path="/transparency" element={<Placeholder name="Transparency Dashboard" />} />
+            <Route path="/transparency" element={<Transparency />} />
 
             {/* Citizen (auth required) */}
             <Route path="/report"        element={<RequireAuth><Placeholder name="Report Issue" /></RequireAuth>} />
