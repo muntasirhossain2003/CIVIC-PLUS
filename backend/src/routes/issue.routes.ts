@@ -1,60 +1,30 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth.middleware';
 import { requireRole } from '../middleware/role.middleware';
+import { validate } from '../middleware/validate';
 import { apiLimiter } from '../middleware/rateLimiter';
+import { issueController } from '../controllers/issue.controller';
+import { createIssueSchema, updateIssueSchema, updateStatusSchema, addCommentSchema } from '../schemas/issue.schema';
 
 const router = Router();
 
 router.use(apiLimiter);
 
-// GET /api/issues — list with filters + pagination (public)
-router.get('/', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
+// Public
+router.get('/',        issueController.list);
+router.get('/nearby',  issueController.nearby);
+router.get('/:id',     issueController.getById);
+router.get('/:id/comments', issueController.getComments);
 
-// GET /api/issues/nearby — geospatial duplicate check
-router.get('/nearby', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
+// Citizen (authenticated)
+router.post('/',                    authenticate, validate(createIssueSchema),  issueController.create);
+router.patch('/:id',                authenticate, validate(updateIssueSchema),  issueController.update);
+router.delete('/:id',               authenticate,                               issueController.delete);
+router.post('/:id/upvote',          authenticate,                               issueController.upvote);
+router.post('/:id/follow',          authenticate,                               issueController.follow);
+router.post('/:id/comments',        authenticate, validate(addCommentSchema),   issueController.addComment);
 
-// GET /api/issues/:id — detail (public)
-router.get('/:id', (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/issues — create (citizen)
-router.post('/', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// PATCH /api/issues/:id — edit (reporter, 1hr)
-router.patch('/:id', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// DELETE /api/issues/:id — delete (reporter 1hr | admin anytime)
-router.delete('/:id', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// PATCH /api/issues/:id/status — status transition (staff/admin)
-router.patch('/:id/status', authenticate, requireRole('staff', 'admin'), (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/issues/:id/upvote
-router.post('/:id/upvote', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/issues/:id/follow
-router.post('/:id/follow', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
-
-// POST /api/issues/:id/comments
-router.post('/:id/comments', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
+// Staff / Admin only
+router.patch('/:id/status', authenticate, requireRole('staff', 'admin'), validate(updateStatusSchema), issueController.updateStatus);
 
 export default router;

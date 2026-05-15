@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate';
+import { uploadController } from '../controllers/upload.controller';
+import { presignedUrlSchema } from '../schemas/issue.schema';
 
 const router = Router();
 
-// POST /api/uploads/presigned-url — get S3 pre-signed URL
-router.post('/presigned-url', authenticate, (req, res) => {
-  res.status(501).json({ message: 'Not implemented yet' });
-});
+router.post('/presigned-url', authenticate, validate(presignedUrlSchema), uploadController.presignedUrl);
 
 export default router;
