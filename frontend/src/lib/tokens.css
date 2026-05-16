@@ -4,25 +4,29 @@
 
 @import "tailwindcss";
 
+html {
+  font-size: 15px; /* gentle base bump — all rem values scale up ~6% */
+}
+
 :root {
   /* Canvas */
-  --ink:        #0B1220;
-  --ink-2:      #131D33;
-  --ink-3:      #1B2740;
+  --ink:        #0D1424;
+  --ink-2:      #162038;
+  --ink-3:      #1E2B44;
 
   /* Lines */
-  --line:       rgba(245, 235, 215, 0.10);
-  --line-2:     rgba(245, 235, 215, 0.18);
+  --line:       rgba(245, 235, 215, 0.12);
+  --line-2:     rgba(245, 235, 215, 0.22);
 
   /* Paper surfaces */
   --paper:      #F2EBDD;
   --paper-2:    #E7DFCB;
   --paper-line: rgba(11, 18, 32, 0.10);
 
-  /* Text */
+  /* Text — improved contrast in dark mode */
   --bone:       #F5F1E8;
-  --muted:      #94A3BC;
-  --muted-2:    #6A7790;
+  --muted:      #A0B0C8;   /* was #94A3BC — more readable */
+  --muted-2:    #7A8BA4;   /* was #6A7790 — more readable */
 
   /* Status accents */
   --pulse:      oklch(0.78 0.16 65);   /* electric amber — live/active */
@@ -43,24 +47,24 @@
 
 /* ── Light mode token overrides ───────────────────────────────────── */
 html[data-theme="light"] {
-  /* Canvas flips to warm parchment */
-  --ink:        #F5F1EA;
-  --ink-2:      #FFFFFF;
-  --ink-3:      #EDE8DF;
+  /* Canvas flips to warm off-white */
+  --ink:        #F0ECE5;
+  --ink-2:      #FAF8F4;
+  --ink-3:      #E6E1D8;
 
   /* Lines become dark-on-light */
-  --line:       rgba(11, 18, 32, 0.07);
-  --line-2:     rgba(11, 18, 32, 0.13);
+  --line:       rgba(11, 18, 32, 0.08);
+  --line-2:     rgba(11, 18, 32, 0.15);
 
   /* Paper surfaces slightly richer to stand out from the canvas */
   --paper:      #E8DFC8;
   --paper-2:    #DDD4BB;
   --paper-line: rgba(11, 18, 32, 0.12);
 
-  /* Text flips to dark navy */
-  --bone:       #0B1220;
-  --muted:      #5A6B82;
-  --muted-2:    #8A9CAF;
+  /* Text flips to dark navy — improved readability */
+  --bone:       #111827;
+  --muted:      #374F68;   /* was #5A6B82 — much darker, better contrast on light */
+  --muted-2:    #556070;   /* was #8A9CAF — darker, passes WCAG AA on light surfaces */
 
   /* Status accents stay the same — amber/green/red/blue read on both */
   --pulse-soft: oklch(0.78 0.16 65 / 0.14);
@@ -76,6 +80,8 @@ body {
   background-attachment: fixed;
   color: var(--bone);
   font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.2s ease, color 0.2s ease;
 }

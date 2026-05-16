@@ -83,13 +83,15 @@ export function Sidebar() {
           </h1>
         </div>
         <p style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.6rem',
-          color: 'var(--muted-2)',
+          fontFamily: 'var(--font-sans)',
+          fontSize: '0.68rem',
+          color: 'var(--muted)',
           margin: '6px 0 0',
-          letterSpacing: '0.12em',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          fontWeight: 500,
         }}>
-          MUNICIPAL ISSUE TRACKER
+          Municipal Issue Tracker
         </p>
       </div>
 
@@ -125,10 +127,10 @@ export function Sidebar() {
                   }}>
                     {item.index}
                   </span>
-                  <Icon size={14} strokeWidth={1.5} />
+                  <Icon size={15} strokeWidth={1.5} />
                   <span style={{
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '0.82rem',
+                    fontSize: '0.9rem',
                     fontWeight: isActive ? 500 : 400,
                     flex: 1,
                   }}>
@@ -136,9 +138,9 @@ export function Sidebar() {
                   </span>
                   <span style={{
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '0.55rem',
+                    fontSize: '0.6rem',
                     color: 'var(--muted-2)',
-                    letterSpacing: '0.12em',
+                    letterSpacing: '0.1em',
                   }}>
                     {item.portal}
                   </span>
@@ -164,9 +166,9 @@ export function Sidebar() {
             borderRadius: 'var(--radius-card)',
             cursor: 'pointer',
             color: 'var(--muted)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.65rem',
-            letterSpacing: '0.1em',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.75rem',
+            letterSpacing: '0.04em',
             padding: '7px 10px',
             transition: 'border-color 0.15s, color 0.15s',
           }}
@@ -179,8 +181,8 @@ export function Sidebar() {
             (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
           }}
         >
-          {theme === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
-          {theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE'}
+          {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
+          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
         </button>
       </div>
 
@@ -189,10 +191,10 @@ export function Sidebar() {
         {user ? (
           <>
             <div>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--bone)', margin: '0 0 2px', fontWeight: 500 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', color: 'var(--bone)', margin: '0 0 2px', fontWeight: 500 }}>
                 {user.name}
               </p>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted-2)', margin: 0 }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--muted)', margin: 0 }}>
                 {user.email}
               </p>
             </div>
@@ -204,18 +206,18 @@ export function Sidebar() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--muted-2)',
+                  color: 'var(--muted)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 4,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.65rem',
-                  letterSpacing: '0.1em',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.78rem',
+                  letterSpacing: '0.04em',
                   padding: 0,
                 }}
               >
-                <LogOut size={12} />
-                LOGOUT
+                <LogOut size={13} />
+                Log out
               </button>
             </div>
           </>
@@ -226,15 +228,16 @@ export function Sidebar() {
               display: 'flex',
               alignItems: 'center',
               gap: 6,
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.7rem',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.85rem',
+              fontWeight: 500,
               color: 'var(--pulse)',
               textDecoration: 'none',
-              letterSpacing: '0.1em',
+              letterSpacing: '0.02em',
             }}
           >
-            <LogIn size={12} />
-            SIGN IN
+            <LogIn size={14} />
+            Sign in
           </NavLink>
         )}
       </div>

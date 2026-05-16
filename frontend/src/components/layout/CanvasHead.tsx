@@ -35,11 +35,11 @@ export function CanvasHead({ eyebrow, title, subtitle }: Props) {
         </h1>
         {subtitle && (
           <p style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.72rem',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.85rem',
             color: 'var(--muted)',
             marginTop: 8,
-            letterSpacing: '0.06em',
+            letterSpacing: '0.01em',
           }}>
             {subtitle}
           </p>
@@ -47,8 +47,8 @@ export function CanvasHead({ eyebrow, title, subtitle }: Props) {
       </div>
       <div style={{
         fontFamily: 'var(--font-mono)',
-        fontSize: '0.65rem',
-        color: 'var(--muted-2)',
+        fontSize: '0.72rem',
+        color: 'var(--muted)',
         textAlign: 'right',
         lineHeight: 2,
         flexShrink: 0,
