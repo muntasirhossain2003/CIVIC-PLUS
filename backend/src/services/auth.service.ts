@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import https from 'https';
 import {
   CognitoIdentityProviderClient,
   SignUpCommand,
@@ -9,12 +10,17 @@ import {
   GlobalSignOutCommand,
   ResendConfirmationCodeCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 import { env } from '../config/env';
 import { User } from '../models/User.model';
 import type { RegisterInput, ConfirmEmailInput, LoginInput, ResetPasswordInput } from '../schemas/auth.schema';
 
+// Force IPv4 — IPv6 path to Cognito is unreachable on this network
+const ipv4Agent = new https.Agent({ family: 4 });
+
 const cognito = new CognitoIdentityProviderClient({
   region: env.AWS_REGION,
+  requestHandler: new NodeHttpHandler({ httpsAgent: ipv4Agent }),
   credentials: env.AWS_ACCESS_KEY_ID
     ? {
         accessKeyId: env.AWS_ACCESS_KEY_ID,
