@@ -15,6 +15,7 @@ import { ResetPassword }  from './screens/auth/ResetPassword';
 // Screens
 import { Transparency } from './screens/transparency/Transparency';
 import { CitizenHome }  from './screens/citizen-home/CitizenHome';
+import { ReportFlow }   from './screens/report-flow/ReportFlow';
 
 // Placeholder for screens being built
 function Placeholder({ name }: { name: string }) {
@@ -69,7 +70,7 @@ export default function App() {
             <Route path="/transparency" element={<Transparency />} />
 
             {/* Citizen (auth required) */}
-            <Route path="/report"        element={<RequireAuth><Placeholder name="Report Issue" /></RequireAuth>} />
+            <Route path="/report"        element={<RequireAuth><ReportFlow /></RequireAuth>} />
             <Route path="/dashboard"     element={<RequireAuth><Placeholder name="My Dashboard" /></RequireAuth>} />
             <Route path="/notifications" element={<RequireAuth><Placeholder name="Notifications" /></RequireAuth>} />
             <Route path="/profile"       element={<RequireAuth><Placeholder name="Profile" /></RequireAuth>} />
