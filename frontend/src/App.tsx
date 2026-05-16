@@ -16,6 +16,7 @@ import { ResetPassword }  from './screens/auth/ResetPassword';
 import { Transparency } from './screens/transparency/Transparency';
 import { CitizenHome }  from './screens/citizen-home/CitizenHome';
 import { ReportFlow }   from './screens/report-flow/ReportFlow';
+import { IssueDetail }  from './screens/issue-detail/IssueDetail';
 
 // Placeholder for screens being built
 function Placeholder({ name }: { name: string }) {
@@ -66,7 +67,7 @@ export default function App() {
             {/* Public */}
             <Route path="/"             element={<CitizenHome />} />
             <Route path="/issues"       element={<Placeholder name="Issue List" />} />
-            <Route path="/issues/:id"   element={<Placeholder name="Issue Detail" />} />
+            <Route path="/issues/:id"   element={<IssueDetail />} />
             <Route path="/transparency" element={<Transparency />} />
 
             {/* Citizen (auth required) */}
