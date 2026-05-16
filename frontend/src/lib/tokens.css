@@ -1,76 +1,79 @@
-/* CivicPulse — "Civic Blueprint" design tokens */
-/* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* CivicPulse — Design tokens v2 */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 html {
-  font-size: 15px; /* gentle base bump — all rem values scale up ~6% */
+  font-size: 15px;
 }
 
 :root {
-  /* Canvas */
-  --ink:        #0D1424;
-  --ink-2:      #162038;
-  --ink-3:      #1E2B44;
+  /* Canvas — rich midnight blue */
+  --ink:   #0E1726;
+  --ink-2: #192236;
+  --ink-3: #233048;
+
+  /* Elevation shadows */
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-sm:   0 1px 4px rgba(0,0,0,0.3);
 
   /* Lines */
-  --line:       rgba(245, 235, 215, 0.12);
-  --line-2:     rgba(245, 235, 215, 0.22);
+  --line:   rgba(255,255,255,0.07);
+  --line-2: rgba(255,255,255,0.13);
 
   /* Paper surfaces */
-  --paper:      #F2EBDD;
-  --paper-2:    #E7DFCB;
-  --paper-line: rgba(11, 18, 32, 0.10);
+  --paper:      #F5EDD8;
+  --paper-2:    #EDE2C6;
+  --paper-line: rgba(11,18,32,0.10);
 
-  /* Text — improved contrast in dark mode */
-  --bone:       #F5F1E8;
-  --muted:      #A0B0C8;   /* was #94A3BC — more readable */
-  --muted-2:    #7A8BA4;   /* was #6A7790 — more readable */
+  /* Text */
+  --bone:    #E4EAF5;
+  --muted:   #8A9BB8;
+  --muted-2: #5A6880;
 
-  /* Status accents */
-  --pulse:      oklch(0.78 0.16 65);   /* electric amber — live/active */
-  --pulse-soft: oklch(0.78 0.16 65 / 0.18);
-  --civic:      oklch(0.70 0.13 152);  /* resolved green */
-  --alert:      oklch(0.66 0.21 25);   /* overdue red */
-  --sky:        oklch(0.74 0.10 230);  /* in-progress blue */
+  /* Accent palette */
+  --pulse:      oklch(0.78 0.16 65);
+  --pulse-soft: oklch(0.78 0.16 65 / 0.15);
+  --civic:      oklch(0.72 0.14 152);
+  --alert:      oklch(0.66 0.21 25);
+  --sky:        oklch(0.74 0.10 230);
 
   /* Typography */
   --font-display: 'Instrument Serif', Georgia, serif;
   --font-sans:    'Space Grotesk', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+  --font-bangla:  'Hind Siliguri', 'Space Grotesk', sans-serif;
 
-  /* Spacing rhythm */
-  --screen-px: clamp(20px, 5vw, 48px);
-  --radius-card: 4px;   /* sharp, document-like */
+  /* Spacing */
+  --screen-px:   clamp(20px, 5vw, 48px);
+  --radius-card: 8px;
+  --radius-sm:   4px;
 }
 
-/* ── Light mode token overrides ───────────────────────────────────── */
+/* ── Light mode ──────────────────────────────────────────────────── */
 html[data-theme="light"] {
-  /* Canvas flips to warm off-white */
-  --ink:        #F0ECE5;
-  --ink-2:      #FAF8F4;
-  --ink-3:      #E6E1D8;
+  --ink:   #EFF2F7;
+  --ink-2: #FFFFFF;
+  --ink-3: #E2E8F0;
 
-  /* Lines become dark-on-light */
-  --line:       rgba(11, 18, 32, 0.08);
-  --line-2:     rgba(11, 18, 32, 0.15);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-sm:   0 1px 4px rgba(0,0,0,0.07);
 
-  /* Paper surfaces slightly richer to stand out from the canvas */
+  --line:   rgba(0,0,0,0.07);
+  --line-2: rgba(0,0,0,0.13);
+
   --paper:      #E8DFC8;
   --paper-2:    #DDD4BB;
-  --paper-line: rgba(11, 18, 32, 0.12);
+  --paper-line: rgba(11,18,32,0.10);
 
-  /* Text flips to dark navy — improved readability */
-  --bone:       #111827;
-  --muted:      #374F68;   /* was #5A6B82 — much darker, better contrast on light */
-  --muted-2:    #556070;   /* was #8A9CAF — darker, passes WCAG AA on light surfaces */
+  --bone:    #0E1726;
+  --muted:   #4A5568;
+  --muted-2: #718096;
 
-  /* Status accents stay the same — amber/green/red/blue read on both */
-  --pulse-soft: oklch(0.78 0.16 65 / 0.14);
+  --pulse-soft: oklch(0.78 0.16 65 / 0.12);
 }
 
-/* Grid backdrop */
+/* ── Base ──────────────────────────────────────────────────────── */
 body {
   background-color: var(--ink);
   background-image:
@@ -86,6 +89,11 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Bangla language class */
+:lang(bn), [lang="bn"] {
+  font-family: var(--font-bangla);
+}
+
 /* Status color map */
 [data-status="submitted"]    { --status-color: var(--muted); }
 [data-status="acknowledged"] { --status-color: var(--pulse); }
@@ -93,7 +101,15 @@ body {
 [data-status="resolved"]     { --status-color: var(--civic); }
 [data-status="rejected"]     { --status-color: var(--alert); }
 
-/* Pulse ring animation — brand motion */
+/* Shared card style */
+.card {
+  background: var(--ink-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* Keyframes */
 @keyframes pulse-ring {
   0%   { transform: scale(1);   opacity: 0.6; }
   100% { transform: scale(2.8); opacity: 0; }
@@ -114,7 +130,11 @@ body {
   100% { background-color: transparent; }
 }
 
-/* Reduced motion */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

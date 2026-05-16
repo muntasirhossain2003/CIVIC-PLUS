@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { useT } from '../../lib/useT';
+import { useLangStore } from '../../store/langStore';
 import { Eyebrow } from '../ui/Eyebrow';
 
 interface Props {
@@ -8,8 +10,13 @@ interface Props {
 }
 
 export function CanvasHead({ eyebrow, title, subtitle }: Props) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
+  const isBn = lang === 'bn';
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const dateStr = now.toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
 
   return (
     <div style={{
@@ -23,23 +30,22 @@ export function CanvasHead({ eyebrow, title, subtitle }: Props) {
       <div>
         <Eyebrow>{eyebrow}</Eyebrow>
         <h1 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
+          fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-display)',
+          fontSize: isBn ? 'clamp(1.6rem, 3vw, 2.4rem)' : 'clamp(1.8rem, 3.5vw, 3rem)',
           margin: '8px 0 0',
           color: 'var(--bone)',
-          fontWeight: 400,
-          lineHeight: 1.1,
-          letterSpacing: '-0.01em',
+          fontWeight: isBn ? 700 : 400,
+          lineHeight: 1.2,
+          letterSpacing: isBn ? '0' : '-0.01em',
         }}>
           {title}
         </h1>
         {subtitle && (
           <p style={{
-            fontFamily: 'var(--font-sans)',
+            fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
             fontSize: '0.85rem',
             color: 'var(--muted)',
             marginTop: 8,
-            letterSpacing: '0.01em',
           }}>
             {subtitle}
           </p>
@@ -47,7 +53,7 @@ export function CanvasHead({ eyebrow, title, subtitle }: Props) {
       </div>
       <div style={{
         fontFamily: 'var(--font-mono)',
-        fontSize: '0.72rem',
+        fontSize: '0.7rem',
         color: 'var(--muted)',
         textAlign: 'right',
         lineHeight: 2,
@@ -56,12 +62,12 @@ export function CanvasHead({ eyebrow, title, subtitle }: Props) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
           <span style={{
-            width: 6, height: 6, borderRadius: '50%',
+            width: 7, height: 7, borderRadius: '50%',
             background: 'var(--civic)',
             animation: 'live-blink 1.4s ease-in-out infinite',
             display: 'inline-block',
           }} />
-          SYSTEM HEALTHY
+          {t('system_ok')}
         </div>
         <div>API v1.0 · {dateStr}</div>
       </div>

@@ -2,33 +2,40 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   MapPin, BarChart3, Plus, LayoutDashboard, Bell,
   ClipboardList, TrendingUp, Users, Building2, Tag,
-  ScrollText, LogOut, LogIn, Sun, Moon,
+  ScrollText, LogOut, LogIn, Sun, Moon, Languages,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { useLangStore } from '../../store/langStore';
+import { useT } from '../../lib/useT';
 import { authApi } from '../../lib/api';
 import { RolePill } from '../ui/RolePill';
 
-const allItems = [
-  { index: '01', portal: 'PUBLIC',  label: 'Live Map',      to: '/',                  icon: MapPin,        roles: [] },
-  { index: '02', portal: 'PUBLIC',  label: 'Transparency',  to: '/transparency',       icon: BarChart3,     roles: [] },
-  { index: '03', portal: 'CITIZEN', label: 'Report Issue',  to: '/report',             icon: Plus,          roles: ['citizen', 'staff', 'admin'] },
-  { index: '04', portal: 'CITIZEN', label: 'My Dashboard',  to: '/dashboard',          icon: LayoutDashboard, roles: ['citizen', 'staff', 'admin'] },
-  { index: '05', portal: 'CITIZEN', label: 'Notifications', to: '/notifications',      icon: Bell,          roles: ['citizen', 'staff', 'admin'] },
-  { index: '06', portal: 'STAFF',   label: 'Staff Queue',   to: '/staff/queue',        icon: ClipboardList, roles: ['staff', 'admin'] },
-  { index: '07', portal: 'ADMIN',   label: 'Analytics',     to: '/admin/analytics',    icon: TrendingUp,    roles: ['admin'] },
-  { index: '08', portal: 'ADMIN',   label: 'Users',         to: '/admin/users',        icon: Users,         roles: ['admin'] },
-  { index: '09', portal: 'ADMIN',   label: 'Departments',   to: '/admin/departments',  icon: Building2,     roles: ['admin'] },
-  { index: '10', portal: 'ADMIN',   label: 'Categories',    to: '/admin/categories',   icon: Tag,           roles: ['admin'] },
-  { index: '11', portal: 'ADMIN',   label: 'Audit Logs',    to: '/admin/audit-logs',   icon: ScrollText,    roles: ['admin'] },
-] as const;
+function navItems(t: ReturnType<typeof useT>) {
+  return [
+    { index: '01', portal: 'PUBLIC',  label: t('nav_map'),           to: '/',                  icon: MapPin,         roles: [] },
+    { index: '02', portal: 'PUBLIC',  label: t('nav_transparency'),  to: '/transparency',       icon: BarChart3,      roles: [] },
+    { index: '03', portal: 'CITIZEN', label: t('nav_report'),        to: '/report',             icon: Plus,           roles: ['citizen','staff','admin'] },
+    { index: '04', portal: 'CITIZEN', label: t('nav_dashboard'),     to: '/dashboard',          icon: LayoutDashboard,roles: ['citizen','staff','admin'] },
+    { index: '05', portal: 'CITIZEN', label: t('nav_notifications'), to: '/notifications',      icon: Bell,           roles: ['citizen','staff','admin'] },
+    { index: '06', portal: 'STAFF',   label: t('nav_staff_queue'),   to: '/staff/queue',        icon: ClipboardList,  roles: ['staff','admin'] },
+    { index: '07', portal: 'ADMIN',   label: t('nav_analytics'),     to: '/admin/analytics',    icon: TrendingUp,     roles: ['admin'] },
+    { index: '08', portal: 'ADMIN',   label: t('nav_users'),         to: '/admin/users',        icon: Users,          roles: ['admin'] },
+    { index: '09', portal: 'ADMIN',   label: t('nav_departments'),   to: '/admin/departments',  icon: Building2,      roles: ['admin'] },
+    { index: '10', portal: 'ADMIN',   label: t('nav_categories'),    to: '/admin/categories',   icon: Tag,            roles: ['admin'] },
+    { index: '11', portal: 'ADMIN',   label: t('nav_audit_logs'),    to: '/admin/audit-logs',   icon: ScrollText,     roles: ['admin'] },
+  ] as const;
+}
 
 export function Sidebar() {
   const { user, clearUser } = useAuthStore();
   const { theme, toggle: toggleTheme } = useThemeStore();
+  const { lang, toggle: toggleLang } = useLangStore();
   const navigate = useNavigate();
+  const t = useT();
 
-  const visibleItems = allItems.filter((item) => {
+  const items = navItems(t);
+  const visible = items.filter((item) => {
     if (item.roles.length === 0) return true;
     return user && (item.roles as readonly string[]).includes(user.role);
   });
@@ -39,32 +46,30 @@ export function Sidebar() {
     navigate('/login');
   }
 
+  const isBn = lang === 'bn';
+
   return (
     <aside style={{
-      width: 280,
+      width: 272,
       background: 'var(--ink-2)',
-      borderRight: '1px solid var(--line)',
+      borderRight: '1px solid var(--line-2)',
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
       position: 'sticky',
       top: 0,
       overflowY: 'auto',
+      boxShadow: '2px 0 16px rgba(0,0,0,0.2)',
     }}>
+
       {/* Brand */}
-      <div style={{ padding: '28px 24px 20px', borderBottom: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Brand pulse mark */}
-          <div style={{ position: 'relative', width: 22, height: 22, flexShrink: 0 }}>
-            <span style={{
-              position: 'absolute', inset: '25%',
-              borderRadius: '50%',
-              background: 'var(--pulse)',
-            }} />
+      <div style={{ padding: '24px 20px 18px', borderBottom: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ position: 'relative', width: 24, height: 24, flexShrink: 0 }}>
+            <span style={{ position: 'absolute', inset: '25%', borderRadius: '50%', background: 'var(--pulse)' }} />
             {[0, 1].map((i) => (
               <span key={i} style={{
-                position: 'absolute', inset: 0,
-                borderRadius: '50%',
+                position: 'absolute', inset: 0, borderRadius: '50%',
                 border: '1.5px solid var(--pulse)',
                 animation: `pulse-ring 1.2s ease-out ${i * 0.6}s infinite`,
                 opacity: 0,
@@ -73,7 +78,7 @@ export function Sidebar() {
           </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '1.35rem',
+            fontSize: '1.4rem',
             margin: 0,
             color: 'var(--bone)',
             fontWeight: 400,
@@ -83,21 +88,21 @@ export function Sidebar() {
           </h1>
         </div>
         <p style={{
-          fontFamily: 'var(--font-sans)',
+          fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
           fontSize: '0.68rem',
           color: 'var(--muted)',
-          margin: '6px 0 0',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
+          margin: 0,
+          letterSpacing: isBn ? '0' : '0.08em',
+          textTransform: isBn ? 'none' : 'uppercase',
           fontWeight: 500,
         }}>
-          Municipal Issue Tracker
+          {t('tagline')}
         </p>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '12px 0' }}>
-        {visibleItems.map((item) => {
+      <nav style={{ flex: 1, padding: '8px 0' }}>
+        {visible.map((item) => {
           const Icon = item.icon;
           return (
             <NavLink
@@ -108,41 +113,51 @@ export function Sidebar() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
-                padding: '10px 20px',
+                padding: '11px 18px',
                 textDecoration: 'none',
-                borderLeft: isActive ? '2px solid var(--pulse)' : '2px solid transparent',
+                borderLeft: isActive ? '3px solid var(--pulse)' : '3px solid transparent',
                 background: isActive ? 'var(--pulse-soft)' : 'transparent',
                 color: isActive ? 'var(--bone)' : 'var(--muted)',
-                transition: 'all 0.15s',
+                transition: 'all 0.15s ease',
+                margin: '1px 0',
+                borderRadius: '0 6px 6px 0',
+                marginRight: 8,
               })}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                if (!el.classList.contains('active')) {
+                  el.style.background = 'var(--ink-3)';
+                  el.style.color = 'var(--bone)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                if (!el.classList.contains('active')) {
+                  el.style.background = 'transparent';
+                  el.style.color = 'var(--muted)';
+                }
+              }}
             >
               {({ isActive }) => (
                 <>
                   <span style={{
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '0.6rem',
+                    fontSize: '0.58rem',
                     color: isActive ? 'var(--pulse)' : 'var(--muted-2)',
-                    minWidth: 20,
-                    letterSpacing: '0.05em',
+                    minWidth: 18,
+                    letterSpacing: '0.04em',
                   }}>
                     {item.index}
                   </span>
-                  <Icon size={15} strokeWidth={1.5} />
+                  <Icon size={15} strokeWidth={isActive ? 2 : 1.5} />
                   <span style={{
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: '0.9rem',
-                    fontWeight: isActive ? 500 : 400,
+                    fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                    fontSize: isBn ? '0.95rem' : '0.88rem',
+                    fontWeight: isActive ? 600 : 400,
                     flex: 1,
+                    letterSpacing: isBn ? '0' : '0.01em',
                   }}>
                     {item.label}
-                  </span>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.6rem',
-                    color: 'var(--muted-2)',
-                    letterSpacing: '0.1em',
-                  }}>
-                    {item.portal}
                   </span>
                 </>
               )}
@@ -151,26 +166,28 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Theme toggle */}
-      <div style={{ padding: '8px 20px', borderTop: '1px solid var(--line)' }}>
+      {/* Utility buttons */}
+      <div style={{ padding: '8px 12px', borderTop: '1px solid var(--line)', display: 'flex', gap: 6 }}>
+        {/* Language toggle */}
         <button
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          onClick={toggleLang}
+          title={lang === 'en' ? 'Switch to বাংলা' : 'Switch to English'}
           style={{
+            flex: 1,
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
-            width: '100%',
-            background: 'none',
+            justifyContent: 'center',
+            gap: 6,
+            background: 'var(--ink-3)',
             border: '1px solid var(--line-2)',
-            borderRadius: 'var(--radius-card)',
+            borderRadius: 6,
             cursor: 'pointer',
             color: 'var(--muted)',
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.75rem',
-            letterSpacing: '0.04em',
+            fontFamily: lang === 'en' ? 'var(--font-bangla)' : 'var(--font-sans)',
+            fontSize: lang === 'en' ? '0.9rem' : '0.75rem',
+            fontWeight: 500,
             padding: '7px 10px',
-            transition: 'border-color 0.15s, color 0.15s',
+            transition: 'all 0.15s',
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--pulse)';
@@ -181,63 +198,124 @@ export function Sidebar() {
             (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
           }}
         >
-          {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
-          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          <Languages size={13} />
+          {t('language')}
+        </button>
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            background: 'var(--ink-3)',
+            border: '1px solid var(--line-2)',
+            borderRadius: 6,
+            cursor: 'pointer',
+            color: 'var(--muted)',
+            fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+            fontSize: '0.75rem',
+            padding: '7px 12px',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--pulse)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--pulse)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
+          }}
+        >
+          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          {theme === 'dark' ? t('light_mode') : t('dark_mode')}
         </button>
       </div>
 
-      {/* Footer */}
-      <div style={{ borderTop: '1px solid var(--line)', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* User footer */}
+      <div style={{ borderTop: '1px solid var(--line)', padding: '14px 16px' }}>
         {user ? (
-          <>
-            <div>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', color: 'var(--bone)', margin: '0 0 2px', fontWeight: 500 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Avatar */}
+            <div style={{
+              width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+              background: 'var(--pulse-soft)',
+              border: '2px solid var(--pulse)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: 'var(--pulse)',
+            }}>
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{
+                fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                fontSize: '0.88rem',
+                color: 'var(--bone)',
+                margin: '0 0 2px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}>
                 {user.name}
               </p>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--muted)', margin: 0 }}>
-                {user.email}
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <RolePill role={user.role} pulse />
-              <button
-                onClick={handleLogout}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--muted)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.78rem',
-                  letterSpacing: '0.04em',
-                  padding: 0,
-                }}
-              >
-                <LogOut size={13} />
-                Log out
-              </button>
             </div>
-          </>
+            <button
+              onClick={handleLogout}
+              title={t('sign_out')}
+              style={{
+                background: 'none',
+                border: '1px solid var(--line-2)',
+                borderRadius: 6,
+                cursor: 'pointer',
+                color: 'var(--muted)',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '6px 8px',
+                transition: 'all 0.15s',
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--alert)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--alert)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
+              }}
+            >
+              <LogOut size={14} />
+            </button>
+          </div>
         ) : (
           <NavLink
             to="/login"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 6,
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.85rem',
+              gap: 8,
+              fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+              fontSize: '0.88rem',
               fontWeight: 500,
               color: 'var(--pulse)',
               textDecoration: 'none',
-              letterSpacing: '0.02em',
+              padding: '8px 12px',
+              background: 'var(--pulse-soft)',
+              border: '1px solid var(--pulse)',
+              borderRadius: 6,
+              justifyContent: 'center',
+              transition: 'all 0.15s',
             }}
           >
-            <LogIn size={14} />
-            Sign in
+            <LogIn size={15} />
+            {t('sign_in')}
           </NavLink>
         )}
       </div>
