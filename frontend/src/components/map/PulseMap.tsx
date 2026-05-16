@@ -1,19 +1,20 @@
 import { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Issue } from '../../types';
 
-const TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string;
+const KEY = import.meta.env.VITE_MAPTILER_KEY as string;
 
-const statusColors: Record<string, string> = {
-  submitted:    '#94A3BC',
-  acknowledged: 'oklch(0.78 0.16 65)',
-  in_progress:  'oklch(0.74 0.10 230)',
-  resolved:     'oklch(0.70 0.13 152)',
-  rejected:     'oklch(0.66 0.21 25)',
+const STYLE = `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${KEY}`;
+
+const STATUS_COLORS: Record<string, string> = {
+  submitted:    '#A0B0C8',
+  acknowledged: 'rgb(214,158,46)',
+  in_progress:  'rgb(96,165,209)',
+  resolved:     'rgb(88,166,115)',
+  rejected:     'rgb(196,80,72)',
 };
 
-// Active statuses get animated rings
 const ANIMATED = new Set(['acknowledged', 'in_progress']);
 
 interface Props {
@@ -27,47 +28,42 @@ interface Props {
 
 export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 12 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef       = useRef<mapboxgl.Map | null>(null);
-  const markersRef   = useRef<mapboxgl.Marker[]>([]);
+  const mapRef       = useRef<maplibregl.Map | null>(null);
+  const markersRef   = useRef<maplibregl.Marker[]>([]);
 
   useEffect(() => {
-    if (!containerRef.current || !TOKEN) return;
+    if (!containerRef.current || !KEY) return;
 
-    mapboxgl.accessToken = TOKEN;
-
-    const defaultCenter: [number, number] = center ?? [90.4125, 23.8103]; // Dhaka
-
-    const map = new mapboxgl.Map({
+    const map = new maplibregl.Map({
       container: containerRef.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: defaultCenter,
+      style: STYLE,
+      center: center ?? [90.4125, 23.8103], // default Dhaka
       zoom,
     });
     mapRef.current = map;
-
-    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     return () => { map.remove(); mapRef.current = null; };
   }, []);
 
-  // Re-render markers when issues change
+  // Re-render markers when issues or picked change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const addMarkers = () => {
+    function addMarkers() {
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
 
       issues.forEach((issue) => {
         const [lng, lat] = issue.location.coordinates;
-        const color = statusColors[issue.status] ?? '#94A3BC';
+        const color   = STATUS_COLORS[issue.status] ?? '#A0B0C8';
         const animate = ANIMATED.has(issue.status);
+        const isPicked = picked === issue._id;
 
         const el = document.createElement('div');
-        el.style.cssText = `position:relative;width:20px;height:20px;cursor:pointer;`;
+        el.style.cssText = 'position:relative;width:22px;height:22px;cursor:pointer;';
 
-        // Pulse rings for active statuses
         if (animate) {
           [0, 0.9, 1.8].forEach((delay) => {
             const ring = document.createElement('span');
@@ -81,39 +77,39 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
           });
         }
 
-        const pin = document.createElement('span');
-        pin.style.cssText = `
+        const dot = document.createElement('span');
+        dot.style.cssText = `
           position:absolute;inset:30%;border-radius:50%;
           background:${color};
-          box-shadow:0 0 0 2px var(--ink);
-          ${picked === issue._id ? 'box-shadow:0 0 0 3px var(--pulse),0 0 0 5px var(--ink);' : ''}
+          box-shadow:0 0 0 2px #0D1424${isPicked ? `,0 0 0 4px ${color}` : ''};
+          transition:box-shadow 0.15s;
         `;
-        el.appendChild(pin);
+        el.appendChild(dot);
 
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([lng, lat])
-          .setPopup(new mapboxgl.Popup({ offset: 16 }).setHTML(`
-            <div style="font-family:var(--font-sans);font-size:12px;color:#0B1220;max-width:200px;">
+        const popup = new maplibregl.Popup({ offset: 14, closeButton: false })
+          .setHTML(`
+            <div style="font-family:system-ui,sans-serif;font-size:12px;color:#111;max-width:200px;line-height:1.4;">
               <strong>${issue.title}</strong><br/>
-              <span style="font-family:monospace;font-size:10px;opacity:0.6;">${issue.category} · ${issue.status}</span><br/>
+              <span style="font-size:10px;opacity:0.6;text-transform:uppercase;">${issue.category} · ${issue.status}</span><br/>
               <span style="font-size:11px;">${issue.address}</span>
             </div>
-          `))
-          .addTo(map);
+          `);
+
+        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([lng, lat])
+          .setPopup(popup)
+          .addTo(map!);
 
         el.addEventListener('click', () => onPick?.(issue));
         markersRef.current.push(marker);
       });
-    };
-
-    if (map.loaded()) {
-      addMarkers();
-    } else {
-      map.once('load', addMarkers);
     }
+
+    if (map.loaded()) addMarkers();
+    else map.once('load', addMarkers);
   }, [issues, picked, onPick]);
 
-  if (!TOKEN) {
+  if (!KEY) {
     return (
       <div style={{
         height,
@@ -123,15 +119,15 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        flexDirection: 'column',
+        gap: 8,
         fontFamily: 'var(--font-mono)',
         fontSize: '0.75rem',
         color: 'var(--muted)',
-        flexDirection: 'column',
-        gap: 8,
       }}>
         <span>Map unavailable</span>
         <span style={{ fontSize: '0.65rem', color: 'var(--muted-2)' }}>
-          Add VITE_MAPBOX_TOKEN to frontend/.env
+          Add VITE_MAPTILER_KEY to frontend/.env
         </span>
       </div>
     );
@@ -140,12 +136,7 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
   return (
     <div
       ref={containerRef}
-      style={{
-        height,
-        borderRadius: 'var(--radius-card)',
-        overflow: 'hidden',
-        border: '1px solid var(--line-2)',
-      }}
+      style={{ height, borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--line-2)' }}
     />
   );
 }
