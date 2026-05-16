@@ -41,6 +41,31 @@
   --radius-card: 4px;   /* sharp, document-like */
 }
 
+/* ── Light mode token overrides ───────────────────────────────────── */
+html[data-theme="light"] {
+  /* Canvas flips to warm parchment */
+  --ink:        #F5F1EA;
+  --ink-2:      #FFFFFF;
+  --ink-3:      #EDE8DF;
+
+  /* Lines become dark-on-light */
+  --line:       rgba(11, 18, 32, 0.07);
+  --line-2:     rgba(11, 18, 32, 0.13);
+
+  /* Paper surfaces slightly richer to stand out from the canvas */
+  --paper:      #E8DFC8;
+  --paper-2:    #DDD4BB;
+  --paper-line: rgba(11, 18, 32, 0.12);
+
+  /* Text flips to dark navy */
+  --bone:       #0B1220;
+  --muted:      #5A6B82;
+  --muted-2:    #8A9CAF;
+
+  /* Status accents stay the same — amber/green/red/blue read on both */
+  --pulse-soft: oklch(0.78 0.16 65 / 0.14);
+}
+
 /* Grid backdrop */
 body {
   background-color: var(--ink);
@@ -52,6 +77,7 @@ body {
   color: var(--bone);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Status color map */

@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore';
 
 // Layout
 import { Shell } from './components/layout/Shell';
+import { ThemeProvider } from './components/ThemeProvider';
 
 // Auth screens (no sidebar)
 import { Login }          from './screens/auth/Login';
@@ -53,6 +54,7 @@ function RequireRole({ role, children }: { role: string; children: React.ReactNo
 
 export default function App() {
   return (
+    <ThemeProvider>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
@@ -93,5 +95,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
+    </ThemeProvider>
   );
 }

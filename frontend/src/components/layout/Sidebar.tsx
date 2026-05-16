@@ -2,9 +2,10 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   MapPin, BarChart3, Plus, LayoutDashboard, Bell,
   ClipboardList, TrendingUp, Users, Building2, Tag,
-  ScrollText, LogOut, LogIn,
+  ScrollText, LogOut, LogIn, Sun, Moon,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useThemeStore } from '../../store/themeStore';
 import { authApi } from '../../lib/api';
 import { RolePill } from '../ui/RolePill';
 
@@ -24,6 +25,7 @@ const allItems = [
 
 export function Sidebar() {
   const { user, clearUser } = useAuthStore();
+  const { theme, toggle: toggleTheme } = useThemeStore();
   const navigate = useNavigate();
 
   const visibleItems = allItems.filter((item) => {
@@ -146,6 +148,41 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Theme toggle */}
+      <div style={{ padding: '8px 20px', borderTop: '1px solid var(--line)' }}>
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            width: '100%',
+            background: 'none',
+            border: '1px solid var(--line-2)',
+            borderRadius: 'var(--radius-card)',
+            cursor: 'pointer',
+            color: 'var(--muted)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.65rem',
+            letterSpacing: '0.1em',
+            padding: '7px 10px',
+            transition: 'border-color 0.15s, color 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--pulse)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--pulse)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
+          }}
+        >
+          {theme === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
+          {theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE'}
+        </button>
+      </div>
 
       {/* Footer */}
       <div style={{ borderTop: '1px solid var(--line)', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
