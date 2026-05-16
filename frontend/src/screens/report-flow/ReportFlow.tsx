@@ -8,7 +8,7 @@ import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Field } from '../../components/ui/Field';
 import { Btn } from '../../components/ui/Btn';
 import { StatusPill } from '../../components/ui/StatusPill';
-import { Issue } from '../../types';
+import type { Issue } from '../../types';
 import { MapPin, Camera, AlertTriangle, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 
 type Step = 'location' | 'details' | 'photos' | 'review';

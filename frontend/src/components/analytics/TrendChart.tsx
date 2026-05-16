@@ -1,5 +1,5 @@
 import {
-  ResponsiveContainer, AreaChart, Area, Line, LineChart,
+  ResponsiveContainer, AreaChart, Area, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { Eyebrow } from '../ui/Eyebrow';
@@ -67,7 +67,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
               fontSize: '0.7rem',
               color: 'var(--bone)',
             }}
-            labelFormatter={fmt}
+            labelFormatter={(v) => fmt(String(v))}
           />
           <Area
             type="monotone"

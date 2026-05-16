@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
-import { User } from '../../types';
+import type { User } from '../../types';
 import { Btn } from '../../components/ui/Btn';
 import { Field } from '../../components/ui/Field';
 

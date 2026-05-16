@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { issueApi } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
-import { Issue, Comment } from '../../types';
+import type { Issue, Comment } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { Eyebrow } from '../../components/ui/Eyebrow';
@@ -22,7 +22,6 @@ function fmt(iso: string) {
 export function IssueDetail() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
-  const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
 
   const [comment, setComment] = useState('');
@@ -75,9 +74,6 @@ export function IssueDetail() {
       </div>
     );
   }
-
-  const isOwner = user?._id === (issue.reporterId as unknown as { _id: string })?._id
-    || user?._id === issue.reporterId;
 
   return (
     <div style={{ padding: 'clamp(20px, 4vw, 48px)' }}>

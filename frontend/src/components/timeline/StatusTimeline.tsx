@@ -1,4 +1,4 @@
-import { IssueStatus } from '../../types';
+import type { IssueStatus } from '../../types';
 import { Eyebrow } from '../ui/Eyebrow';
 
 interface TimelineEntry {
@@ -67,7 +67,6 @@ export function StatusTimeline({ history, current }: Props) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {displayStatuses.map((status) => {
             const isCurrent = status === current;
-            const isDone = reached.has(status) && !isCurrent;
             const isPending = !reached.has(status);
             const entry = historyMap.get(status);
             const color = statusColors[status];

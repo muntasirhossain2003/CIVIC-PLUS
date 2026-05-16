@@ -7,7 +7,6 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { authApi } from '../../lib/api';
 import { RolePill } from '../ui/RolePill';
-import { UserRole } from '../../types';
 
 const allItems = [
   { index: '01', portal: 'PUBLIC',  label: 'Live Map',      to: '/',                  icon: MapPin,        roles: [] },
@@ -29,7 +28,7 @@ export function Sidebar() {
 
   const visibleItems = allItems.filter((item) => {
     if (item.roles.length === 0) return true;
-    return user && item.roles.includes(user.role as UserRole);
+    return user && (item.roles as readonly string[]).includes(user.role);
   });
 
   async function handleLogout() {

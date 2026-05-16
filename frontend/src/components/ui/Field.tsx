@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { Eyebrow } from './Eyebrow';
 
 interface BaseProps {

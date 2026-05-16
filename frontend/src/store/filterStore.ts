@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IssueCategory, IssueSeverity, IssueStatus } from '../types';
+import type { IssueCategory, IssueSeverity, IssueStatus } from '../types';
 
 interface FilterState {
   status: IssueStatus | '';

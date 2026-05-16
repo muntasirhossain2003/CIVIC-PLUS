@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '../../lib/api';
-import { Shell } from '../../components/layout/Shell';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { StatStrip } from '../../components/analytics/StatStrip';
 import { TrendChart, CategoryChart } from '../../components/analytics/TrendChart';

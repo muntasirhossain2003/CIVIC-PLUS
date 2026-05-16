@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { issueApi } from '../../lib/api';
-import { Issue } from '../../types';
+import type { Issue } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { PulseMap } from '../../components/map/PulseMap';
 import { LiveTicker } from '../../components/feed/LiveTicker';

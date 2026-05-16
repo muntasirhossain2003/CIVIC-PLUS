@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { issueApi } from '../../lib/api';
-import { useAuthStore } from '../../store/authStore';
-import { Issue, IssueStatus } from '../../types';
+
+import type { Issue, IssueStatus } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
-import { StatusPill } from '../../components/ui/StatusPill';
 import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Btn } from '../../components/ui/Btn';
 import { SLABar } from '../../components/timeline/SLABar';
@@ -26,11 +25,6 @@ const statusColors: Record<IssueStatus, string> = {
   rejected:     'var(--alert)',
 };
 
-const nextStatus: Partial<Record<IssueStatus, IssueStatus>> = {
-  submitted:    'acknowledged',
-  acknowledged: 'in_progress',
-  in_progress:  'resolved',
-};
 
 function isOverdue(issue: Issue) {
   if (!issue.slaDeadline) return false;
@@ -52,7 +46,6 @@ interface StatusModalProps {
 
 function StatusModal({ issue, onClose }: StatusModalProps) {
   const qc = useQueryClient();
-  const user = useAuthStore((s) => s.user);
   const [status, setStatus] = useState<IssueStatus>(issue.status);
   const [note, setNote] = useState('');
   const [resolutionNotes, setResolutionNotes] = useState('');

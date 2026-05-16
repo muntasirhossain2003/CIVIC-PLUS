@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSocket } from '../../lib/socket';
 import { StatusPill } from '../ui/StatusPill';
-import { Issue } from '../../types';
+import type { Issue } from '../../types';
 
 interface TickerEntry {
   _id: string;

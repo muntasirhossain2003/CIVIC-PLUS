@@ -1,4 +1,4 @@
-import { UserRole } from '../../types';
+import type { UserRole } from '../../types';
 
 const labels: Record<UserRole, string> = {
   citizen: 'CITIZEN',

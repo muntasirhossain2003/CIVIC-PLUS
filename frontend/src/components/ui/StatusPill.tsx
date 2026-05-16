@@ -1,4 +1,4 @@
-import { IssueStatus } from '../../types';
+import type { IssueStatus } from '../../types';
 
 const labels: Record<IssueStatus, string> = {
   submitted:    'SUBMITTED',

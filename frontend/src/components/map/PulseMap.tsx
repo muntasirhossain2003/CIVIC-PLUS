@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Issue } from '../../types';
+import type { Issue } from '../../types';
 
 const TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
