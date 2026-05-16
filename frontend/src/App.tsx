@@ -17,6 +17,7 @@ import { Transparency } from './screens/transparency/Transparency';
 import { CitizenHome }  from './screens/citizen-home/CitizenHome';
 import { ReportFlow }   from './screens/report-flow/ReportFlow';
 import { IssueDetail }  from './screens/issue-detail/IssueDetail';
+import { StaffQueue }   from './screens/staff-queue/StaffQueue';
 
 // Placeholder for screens being built
 function Placeholder({ name }: { name: string }) {
@@ -77,7 +78,7 @@ export default function App() {
             <Route path="/profile"       element={<RequireAuth><Placeholder name="Profile" /></RequireAuth>} />
 
             {/* Staff */}
-            <Route path="/staff/queue"      element={<RequireAuth><RequireRole role="staff"><Placeholder name="Staff Queue" /></RequireRole></RequireAuth>} />
+            <Route path="/staff/queue"      element={<RequireAuth><RequireRole role="staff"><StaffQueue /></RequireRole></RequireAuth>} />
             <Route path="/staff/issues/:id" element={<RequireAuth><RequireRole role="staff"><Placeholder name="Staff Issue Detail" /></RequireRole></RequireAuth>} />
 
             {/* Admin */}
