@@ -17,6 +17,7 @@ const schema = z.object({
   // AWS Cognito
   COGNITO_USER_POOL_ID: z.string().min(1, 'COGNITO_USER_POOL_ID is required'),
   COGNITO_CLIENT_ID: z.string().min(1, 'COGNITO_CLIENT_ID is required'),
+  COGNITO_CLIENT_SECRET: z.string().optional(), // required only if app client has a secret
 
   // AWS S3
   AWS_S3_BUCKET: z.string().optional(),

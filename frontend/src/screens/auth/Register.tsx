@@ -64,15 +64,22 @@ export function Register() {
               required
               autoComplete="new-password"
             />
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--muted-2)', margin: '-8px 0 0', letterSpacing: '0.04em' }}>
-              Min 8 chars — uppercase, number, and special character required.
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--muted)', margin: '-8px 0 0' }}>
+              Min 8 chars · uppercase · lowercase · number · special character (e.g. @, #, !)
             </p>
             <Field label="Phone (optional)" type="tel" value={form.phone} onChange={set('phone')} autoComplete="tel" />
 
             {error && (
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--alert)', margin: 0 }}>
-                {error}
-              </p>
+              <div style={{
+                background: 'oklch(0.66 0.21 25 / 0.12)',
+                border: '1px solid var(--alert)',
+                borderRadius: 'var(--radius-card)',
+                padding: '10px 14px',
+              }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--alert)', margin: 0 }}>
+                  {error}
+                </p>
+              </div>
             )}
 
             <Btn type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}>

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   CognitoIdentityProviderClient,
   SignUpCommand,
@@ -10,7 +11,7 @@ import {
 } from '@aws-sdk/client-cognito-identity-provider';
 import { env } from '../config/env';
 import { User } from '../models/User.model';
-import { RegisterInput, ConfirmEmailInput, LoginInput, ResetPasswordInput } from '../schemas/auth.schema';
+import type { RegisterInput, ConfirmEmailInput, LoginInput, ResetPasswordInput } from '../schemas/auth.schema';
 
 const cognito = new CognitoIdentityProviderClient({
   region: env.AWS_REGION,
@@ -27,11 +28,21 @@ function fail(message: string, status: number): never {
   throw Object.assign(new Error(message), { status });
 }
 
+// Required when Cognito App Client has a client secret configured
+function secretHash(username: string): string | undefined {
+  if (!env.COGNITO_CLIENT_SECRET) return undefined;
+  return crypto
+    .createHmac('sha256', env.COGNITO_CLIENT_SECRET)
+    .update(username + env.COGNITO_CLIENT_ID)
+    .digest('base64');
+}
+
 export const authService = {
   async register(input: RegisterInput) {
     const { UserSub } = await cognito.send(
       new SignUpCommand({
         ClientId: env.COGNITO_CLIENT_ID,
+        SecretHash: secretHash(input.email),
         Username: input.email,
         Password: input.password,
         UserAttributes: [
@@ -57,6 +68,7 @@ export const authService = {
     await cognito.send(
       new ConfirmSignUpCommand({
         ClientId: env.COGNITO_CLIENT_ID,
+        SecretHash: secretHash(input.email),
         Username: input.email,
         ConfirmationCode: input.code,
       }),
@@ -69,6 +81,7 @@ export const authService = {
     await cognito.send(
       new ResendConfirmationCodeCommand({
         ClientId: env.COGNITO_CLIENT_ID,
+        SecretHash: secretHash(email),
         Username: email,
       }),
     ).catch((err) => fail(err.message ?? 'Could not resend code', 400));
@@ -84,6 +97,7 @@ export const authService = {
         AuthParameters: {
           USERNAME: input.email,
           PASSWORD: input.password,
+          ...(secretHash(input.email) ? { SECRET_HASH: secretHash(input.email)! } : {}),
         },
       }),
     ).catch((err) => fail(err.message ?? 'Invalid email or password', 401));
@@ -109,11 +123,22 @@ export const authService = {
   },
 
   async refresh(refreshToken: string) {
+    // For refresh flow, the username isn't available — use a placeholder for the HMAC.
+    // Cognito accepts REFRESH_TOKEN_AUTH with SECRET_HASH computed from the sub or client_id only.
+    // When client secret is enabled, pass SECRET_HASH keyed on the client_id alone.
     const result = await cognito.send(
       new InitiateAuthCommand({
         AuthFlow: 'REFRESH_TOKEN_AUTH',
         ClientId: env.COGNITO_CLIENT_ID,
-        AuthParameters: { REFRESH_TOKEN: refreshToken },
+        AuthParameters: {
+          REFRESH_TOKEN: refreshToken,
+          ...(env.COGNITO_CLIENT_SECRET
+            ? { SECRET_HASH: crypto
+                  .createHmac('sha256', env.COGNITO_CLIENT_SECRET)
+                  .update(env.COGNITO_CLIENT_ID)
+                  .digest('base64') }
+            : {}),
+        },
       }),
     ).catch(() => fail('Invalid or expired refresh token', 401));
 
@@ -136,6 +161,7 @@ export const authService = {
     await cognito.send(
       new ForgotPasswordCommand({
         ClientId: env.COGNITO_CLIENT_ID,
+        SecretHash: secretHash(email),
         Username: email,
       }),
     ).catch(() => {}); // Always succeed — don't reveal if email exists
@@ -147,6 +173,7 @@ export const authService = {
     await cognito.send(
       new ConfirmForgotPasswordCommand({
         ClientId: env.COGNITO_CLIENT_ID,
+        SecretHash: secretHash(input.email),
         Username: input.email,
         ConfirmationCode: input.code,
         Password: input.password,
