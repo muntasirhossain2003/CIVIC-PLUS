@@ -39,7 +39,9 @@ function secretHash(username: string): string | undefined {
 
 export const authService = {
   async register(input: RegisterInput) {
-    const { UserSub } = await cognito.send(
+    // Only talk to Cognito here — MongoDB user is upserted on first login.
+    // This keeps registration working even when Atlas is temporarily unreachable.
+    await cognito.send(
       new SignUpCommand({
         ClientId: env.COGNITO_CLIENT_ID,
         SecretHash: secretHash(input.email),
@@ -52,14 +54,6 @@ export const authService = {
         ],
       }),
     ).catch((err) => fail(err.message ?? 'Registration failed', 400));
-
-    // Create MongoDB profile immediately — linked by Cognito sub
-    await User.create({
-      cognitoSub: UserSub,
-      name:  input.name,
-      email: input.email,
-      phone: input.phone,
-    });
 
     return { message: 'Account created. Check your email for a 6-digit verification code.' };
   },
@@ -105,8 +99,24 @@ export const authService = {
     const tokens = result.AuthenticationResult;
     if (!tokens) fail('Authentication failed', 401);
 
-    const user = await User.findOne({ email: input.email });
-    if (!user) fail('User profile not found', 404);
+    // Decode Cognito ID token (trusted — issued by our own user pool) to get user attributes
+    const idPayload = JSON.parse(
+      Buffer.from(tokens.IdToken!.split('.')[1], 'base64').toString('utf8'),
+    ) as { sub: string; name?: string; email: string; phone_number?: string };
+
+    // Upsert MongoDB profile — created here on first login after email verification
+    const user = await User.findOneAndUpdate(
+      { cognitoSub: idPayload.sub },
+      {
+        $setOnInsert: {
+          cognitoSub:   idPayload.sub,
+          name:         idPayload.name ?? input.email,
+          email:        idPayload.email,
+          phone:        idPayload.phone_number,
+        },
+      },
+      { upsert: true, new: true },
+    );
 
     return {
       accessToken:  tokens.AccessToken!,
@@ -122,22 +132,15 @@ export const authService = {
     };
   },
 
-  async refresh(refreshToken: string) {
-    // For refresh flow, the username isn't available — use a placeholder for the HMAC.
-    // Cognito accepts REFRESH_TOKEN_AUTH with SECRET_HASH computed from the sub or client_id only.
-    // When client secret is enabled, pass SECRET_HASH keyed on the client_id alone.
+  async refresh(refreshToken: string, username?: string) {
+    const hash = username ? secretHash(username) : undefined;
     const result = await cognito.send(
       new InitiateAuthCommand({
         AuthFlow: 'REFRESH_TOKEN_AUTH',
         ClientId: env.COGNITO_CLIENT_ID,
         AuthParameters: {
           REFRESH_TOKEN: refreshToken,
-          ...(env.COGNITO_CLIENT_SECRET
-            ? { SECRET_HASH: crypto
-                  .createHmac('sha256', env.COGNITO_CLIENT_SECRET)
-                  .update(env.COGNITO_CLIENT_ID)
-                  .digest('base64') }
-            : {}),
+          ...(hash ? { SECRET_HASH: hash } : {}),
         },
       }),
     ).catch(() => fail('Invalid or expired refresh token', 401));

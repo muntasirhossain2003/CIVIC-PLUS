@@ -3,12 +3,13 @@ import { authService } from '../services/auth.service';
 import { AuthRequest } from '../types/index.d';
 import { User } from '../models/User.model';
 
-const REFRESH_COOKIE = 'refreshToken';
+const REFRESH_COOKIE  = 'refreshToken';
+const USERNAME_COOKIE = 'cognitoUsername'; // non-sensitive, used only for SecretHash computation
 const COOKIE_OPTS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
-  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days (Cognito refresh tokens last 30d by default)
+  maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
 function handleError(res: Response, err: unknown) {
@@ -41,16 +42,18 @@ export const authController = {
   async login(req: Request, res: Response) {
     try {
       const { accessToken, idToken, refreshToken, expiresIn, user } = await authService.login(req.body);
-      res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTS);
+      res.cookie(REFRESH_COOKIE,  refreshToken,  COOKIE_OPTS);
+      res.cookie(USERNAME_COOKIE, req.body.email, COOKIE_OPTS);
       res.json({ accessToken, idToken, expiresIn, user });
     } catch (err) { handleError(res, err); }
   },
 
   async refresh(req: Request, res: Response) {
     try {
-      const token = req.cookies[REFRESH_COOKIE];
+      const token    = req.cookies[REFRESH_COOKIE];
+      const username = req.cookies[USERNAME_COOKIE]; // email stored at login time
       if (!token) { res.status(401).json({ message: 'No refresh token' }); return; }
-      const result = await authService.refresh(token);
+      const result = await authService.refresh(token, username);
       res.json(result);
     } catch (err) { handleError(res, err); }
   },
@@ -62,6 +65,7 @@ export const authController = {
         await authService.logout(header.slice(7));
       }
       res.clearCookie(REFRESH_COOKIE);
+      res.clearCookie(USERNAME_COOKIE);
       res.json({ message: 'Logged out' });
     } catch (err) { handleError(res, err); }
   },
