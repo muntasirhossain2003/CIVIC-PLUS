@@ -28,6 +28,14 @@ function fail(message: string, status: number): never {
   throw Object.assign(new Error(message), { status });
 }
 
+function cognitoError(err: unknown): never {
+  const e = err as { name?: string; message?: string; code?: string };
+  if (e.code === 'ETIMEDOUT' || e.name === 'TimeoutError') {
+    fail('AWS service is unreachable — check that your credentials are still valid and not expired.', 503);
+  }
+  fail(e.message || e.name || 'AWS Cognito error', 400);
+}
+
 // Required when Cognito App Client has a client secret configured
 function secretHash(username: string): string | undefined {
   if (!env.COGNITO_CLIENT_SECRET) return undefined;
@@ -53,7 +61,7 @@ export const authService = {
           ...(input.phone ? [{ Name: 'phone_number', Value: input.phone }] : []),
         ],
       }),
-    ).catch((err) => fail(err.message ?? 'Registration failed', 400));
+    ).catch(cognitoError);
 
     return { message: 'Account created. Check your email for a 6-digit verification code.' };
   },
@@ -66,7 +74,7 @@ export const authService = {
         Username: input.email,
         ConfirmationCode: input.code,
       }),
-    ).catch((err) => fail(err.message ?? 'Confirmation failed', 400));
+    ).catch(cognitoError);
 
     return { message: 'Email verified. You can now log in.' };
   },
@@ -78,7 +86,7 @@ export const authService = {
         SecretHash: secretHash(email),
         Username: email,
       }),
-    ).catch((err) => fail(err.message ?? 'Could not resend code', 400));
+    ).catch(cognitoError);
 
     return { message: 'Verification code resent.' };
   },
@@ -94,7 +102,7 @@ export const authService = {
           ...(secretHash(input.email) ? { SECRET_HASH: secretHash(input.email)! } : {}),
         },
       }),
-    ).catch((err) => fail(err.message ?? 'Invalid email or password', 401));
+    ).catch(cognitoError);
 
     const tokens = result.AuthenticationResult;
     if (!tokens) fail('Authentication failed', 401);
@@ -181,7 +189,7 @@ export const authService = {
         ConfirmationCode: input.code,
         Password: input.password,
       }),
-    ).catch((err) => fail(err.message ?? 'Invalid or expired code', 400));
+    ).catch(cognitoError);
 
     return { message: 'Password reset successful. You can now log in.' };
   },
