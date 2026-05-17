@@ -45,7 +45,7 @@ export function SLABar({ slaDeadline, createdAt, status }: Props) {
         </span>
       </div>
 
-      <div style={{ height: 6, background: 'var(--ink-3)', borderRadius: 3, overflow: 'hidden' }}>
+      <div style={{ height: 6, background: 'rgba(255,255,255,0.5)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{
           height: '100%',
           width: `${pct}%`,
@@ -56,10 +56,10 @@ export function SLABar({ slaDeadline, createdAt, status }: Props) {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--muted-2)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--ink-3)' }}>
           Reported {new Date(createdAt).toLocaleDateString()}
         </span>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--muted-2)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--ink-3)' }}>
           SLA {new Date(slaDeadline).toLocaleDateString()}
         </span>
       </div>

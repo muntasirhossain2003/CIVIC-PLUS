@@ -16,13 +16,13 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
       gridTemplateColumns: `repeat(${stats.length}, 1fr)`,
       gap: 1,
       background: 'var(--line)',
-      border: '1px solid var(--line-2)',
+      border: '1px solid var(--line)',
       borderRadius: 'var(--radius-card)',
       overflow: 'hidden',
     }}>
       {stats.map((s, i) => (
         <div key={i} style={{
-          background: 'var(--ink-2)',
+          background: 'var(--paper)',
           padding: '24px 28px',
           animation: `fade-up 0.5s ${i * 0.08}s ease both`,
         }}>
@@ -30,20 +30,20 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
           <div style={{
             fontFamily: 'var(--font-display)',
             fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-            color: 'var(--bone)',
+            color: 'var(--ink)',
             lineHeight: 1,
             margin: '10px 0 6px',
             fontWeight: 400,
           }}>
             <CountUp to={s.value} />
             {s.unit && (
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--muted)', marginLeft: 4 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.9rem', color: 'var(--ink-2)', marginLeft: 4 }}>
                 {s.unit}
               </span>
             )}
           </div>
           {s.sub && (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted)', margin: 0, letterSpacing: '0.08em' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--ink-2)', margin: 0, letterSpacing: '0.08em' }}>
               {s.sub}
             </p>
           )}
@@ -56,8 +56,8 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
 export function StatCard({ eyebrow, value, unit, sub, color }: Stat & { color?: string }) {
   return (
     <div style={{
-      background: 'var(--ink-2)',
-      border: '1px solid var(--line-2)',
+      background: 'var(--paper)',
+      border: '1px solid var(--line)',
       borderRadius: 'var(--radius-card)',
       padding: '20px 24px',
     }}>
@@ -71,9 +71,9 @@ export function StatCard({ eyebrow, value, unit, sub, color }: Stat & { color?: 
         fontWeight: 400,
       }}>
         <CountUp to={value} />
-        {unit && <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--muted)', marginLeft: 4 }}>{unit}</span>}
+        {unit && <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--ink-2)', marginLeft: 4 }}>{unit}</span>}
       </div>
-      {sub && <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--muted)', margin: 0 }}>{sub}</p>}
+      {sub && <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--ink-2)', margin: 0 }}>{sub}</p>}
     </div>
   );
 }

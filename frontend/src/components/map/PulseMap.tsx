@@ -5,14 +5,14 @@ import { Locate, LoaderCircle } from 'lucide-react';
 import type { Issue } from '../../types';
 
 const KEY = import.meta.env.VITE_MAPTILER_KEY as string;
-const STYLE = `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${KEY}`;
+const STYLE = `https://api.maptiler.com/maps/dataviz/style.json?key=${KEY}`;
 
 const STATUS_COLORS: Record<string, string> = {
-  submitted:    '#A0B0C8',
-  acknowledged: 'rgb(214,158,46)',
-  in_progress:  'rgb(96,165,209)',
-  resolved:     'rgb(88,166,115)',
-  rejected:     'rgb(196,80,72)',
+  submitted:    '#8B95A8',
+  acknowledged: 'oklch(0.74 0.16 60)',
+  in_progress:  'oklch(0.48 0.09 220)',
+  resolved:     'oklch(0.68 0.13 155)',
+  rejected:     'oklch(0.64 0.19 25)',
 };
 
 const ANIMATED = new Set(['acknowledged', 'in_progress']);
@@ -86,7 +86,7 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
         dot.style.cssText = `
           position:absolute;inset:30%;border-radius:50%;
           background:${color};
-          box-shadow:0 0 0 2px #0E1726${isPicked ? `,0 0 0 4px ${color}` : ''};
+          box-shadow:0 0 0 2px white${isPicked ? `,0 0 0 4px ${color}` : ''};
           transition:box-shadow 0.15s;
         `;
         el.appendChild(dot);
@@ -188,15 +188,16 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
     return (
       <div style={{
         height,
-        background: 'var(--ink-3)',
-        border: '1px solid var(--line-2)',
-        borderRadius: 8,
+        background: 'var(--paper)',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--radius-card)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexDirection: 'column', gap: 8,
-        fontFamily: 'var(--font-sans)', fontSize: '0.85rem', color: 'var(--muted)',
+        fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--ink-2)',
+        boxShadow: 'var(--shadow-card)',
       }}>
         <span>Map unavailable</span>
-        <span style={{ fontSize: '0.75rem', color: 'var(--muted-2)' }}>
+        <span style={{ fontSize: '0.78rem', color: 'var(--ink-3)' }}>
           Add VITE_MAPTILER_KEY to frontend/.env
         </span>
       </div>
@@ -204,7 +205,7 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
   }
 
   return (
-    <div style={{ position: 'relative', height, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--line-2)' }}>
+    <div style={{ position: 'relative', height, borderRadius: 'var(--radius-card)', overflow: 'hidden', border: '1px solid var(--line)', boxShadow: 'var(--shadow-card)' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 
       {/* Locate Me button */}
@@ -220,8 +221,8 @@ export function PulseMap({ issues, height = 500, onPick, picked, center, zoom = 
           display: 'flex',
           alignItems: 'center',
           gap: 7,
-          background: locating ? 'var(--ink-2)' : 'var(--pulse)',
-          color: locating ? 'var(--muted)' : '#0E1726',
+          background: locating ? 'rgba(255,255,255,0.7)' : 'var(--ink)',
+          color: locating ? 'var(--ink-3)' : '#fff',
           border: 'none',
           borderRadius: 8,
           padding: '9px 14px',

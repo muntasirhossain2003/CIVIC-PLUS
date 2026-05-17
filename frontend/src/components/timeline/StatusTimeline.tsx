@@ -139,7 +139,7 @@ export function StatusTimeline({ history, current }: Props) {
                     <p style={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.62rem',
-                      color: 'var(--muted-2)',
+                      color: 'var(--ink-3)',
                       margin: '4px 0 0',
                       letterSpacing: '0.04em',
                     }}>

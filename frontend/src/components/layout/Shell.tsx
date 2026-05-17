@@ -1,13 +1,17 @@
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
+import { TopBar } from './TopBar';
 
 export function Shell({ children }: { children: ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <main style={{ overflowY: 'auto', minHeight: '100vh' }}>
-        {children}
-      </main>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <TopBar />
+        <main style={{ flex: 1, overflowY: 'auto' }}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

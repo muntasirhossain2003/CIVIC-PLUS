@@ -3,13 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi } from '../../lib/api';
 import { Btn } from '../../components/ui/Btn';
 import { Field } from '../../components/ui/Field';
-import { Eyebrow } from '../../components/ui/Eyebrow';
 
 export function VerifyEmail() {
   const { state } = useLocation() as { state: { email?: string } };
-  const navigate = useNavigate();
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
+  const navigate  = useNavigate();
+  const [code, setCode]     = useState('');
+  const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const [resent, setResent] = useState(false);
 
@@ -40,25 +39,41 @@ export function VerifyEmail() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div style={{ width: '100%', maxWidth: 400, animation: 'fade-up 0.5s ease both' }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px' }}>
-            Civic<em>Pulse</em>
+      <div style={{ width: '100%', maxWidth: 420, animation: 'fade-up 0.5s ease both' }}>
+
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 16,
+            background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px oklch(0.82 0.14 75 / 0.45)',
+          }}>
+            <span style={{ fontSize: '1.4rem' }}>✉️</span>
+          </div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '2rem', fontWeight: 400,
+            color: 'var(--ink)', margin: '0 0 4px', letterSpacing: '-0.015em',
+          }}>
+            Check your email
           </h1>
+          <p style={{
+            fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
+            color: 'var(--ink-3)', margin: 0, lineHeight: 1.55,
+          }}>
+            We sent a 6-digit code to{' '}
+            <strong style={{ color: 'var(--ink)', fontWeight: 700 }}>{email || 'your email'}</strong>
+          </p>
         </div>
 
         <div style={{
-          background: 'var(--ink-2)',
-          border: '1px solid var(--line-2)',
+          background: 'var(--paper)',
           borderRadius: 'var(--radius-card)',
-          padding: 32,
+          padding: '32px',
+          boxShadow: 'var(--shadow-card)',
+          border: '1px solid var(--line)',
         }}>
-          <Eyebrow>Verify your email</Eyebrow>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--muted)', margin: '12px 0 24px' }}>
-            We sent a 6-digit code to <strong style={{ color: 'var(--bone)' }}>{email || 'your email'}</strong>.
-            Enter it below to activate your account.
-          </p>
-
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Field
               label="Verification code"
@@ -69,33 +84,44 @@ export function VerifyEmail() {
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
               required
-              style={{ letterSpacing: '0.3em', fontSize: '1.2rem', textAlign: 'center' }}
+              style={{ letterSpacing: '0.4em', fontSize: '1.4rem', textAlign: 'center', fontFamily: 'var(--font-mono)' }}
             />
 
             {error && (
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--alert)', margin: 0 }}>{error}</p>
+              <div style={{
+                background: 'oklch(0.64 0.19 25 / 0.08)',
+                border: '1px solid oklch(0.64 0.19 25 / 0.3)',
+                borderRadius: 12, padding: '10px 14px',
+                fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--alert)',
+              }}>
+                {error}
+              </div>
             )}
 
-            <Btn type="submit" disabled={loading || code.length < 6} style={{ width: '100%', justifyContent: 'center' }}>
+            <Btn type="submit" disabled={loading || code.length < 6} style={{ width: '100%' }}>
               {loading ? 'Verifying…' : 'Verify email'}
             </Btn>
           </form>
 
           <div style={{ borderTop: '1px solid var(--line)', marginTop: 24, paddingTop: 20 }}>
             {resent ? (
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--civic)', margin: 0 }}>
-                ✓ New code sent.
+              <p style={{
+                fontFamily: 'var(--font-sans)', fontSize: '0.82rem',
+                color: 'var(--civic)', margin: 0, fontWeight: 600,
+              }}>
+                ✓ New code sent to your email.
               </p>
             ) : (
               <button
                 onClick={handleResend}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-mono)', fontSize: '0.7rem',
-                  color: 'var(--muted)', letterSpacing: '0.06em', padding: 0,
+                  fontFamily: 'var(--font-sans)', fontSize: '0.82rem',
+                  color: 'var(--ink-2)', padding: 0,
                 }}
               >
-                Didn't receive it? Resend code →
+                Didn't receive it?{' '}
+                <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Resend code →</span>
               </button>
             )}
           </div>

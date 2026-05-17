@@ -23,7 +23,7 @@ export function Transparency() {
 
   if (isLoading) {
     return (
-      <div style={{ padding: 48, fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--muted)' }}>
+      <div style={{ padding: 48, fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-2)' }}>
         Loading analytics…
       </div>
     );
@@ -70,8 +70,8 @@ export function Transparency() {
 
       {/* Status legend */}
       <div style={{
-        background: 'var(--ink-2)',
-        border: '1px solid var(--line-2)',
+        background: 'var(--paper)',
+        border: '1px solid var(--line)',
         borderRadius: 'var(--radius-card)',
         padding: '20px 24px',
       }}>
@@ -81,7 +81,7 @@ export function Transparency() {
             <StatusPill key={s} status={s} />
           ))}
         </div>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--muted-2)', margin: '14px 0 0', lineHeight: 1.8 }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--ink-3)', margin: '14px 0 0', lineHeight: 1.8 }}>
           SUBMITTED — received, awaiting triage&emsp;
           ACKNOWLEDGED — triaged and queued&emsp;
           IN PROGRESS — crew dispatched&emsp;

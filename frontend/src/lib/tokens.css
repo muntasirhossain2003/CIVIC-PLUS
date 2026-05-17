@@ -1,5 +1,5 @@
-/* CivicPulse — Design tokens v2 */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+/* CivicPulse — "Sunny Civic" design system v2 */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Caprasimo&family=DM+Mono:wght@400;500&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
@@ -8,136 +8,180 @@ html {
 }
 
 :root {
-  /* Canvas — rich midnight blue */
-  --ink:   #0E1726;
-  --ink-2: #192236;
-  --ink-3: #233048;
+  /* ── Canvas ── */
+  --bg:    #F6F1E7;   /* warm cream page */
+  --bg-2:  #FBF7EE;   /* lighter cream */
+  --paper: #FFFFFF;   /* card surface */
 
-  /* Elevation shadows */
-  --shadow-card: 0 2px 12px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-sm:   0 1px 4px rgba(0,0,0,0.3);
+  /* ── Ink (text & dark surfaces) ── */
+  --ink:    #1A1F2E;  /* primary text / dark bg */
+  --ink-2:  #4F5A70;  /* secondary text */
+  --ink-3:  #8B95A8;  /* muted text */
 
-  /* Lines */
-  --line:   rgba(255,255,255,0.07);
-  --line-2: rgba(255,255,255,0.13);
+  /* ── Borders ── */
+  --line:   #E8DFCD;
+  --line-2: #D9CFB8;
 
-  /* Paper surfaces */
-  --paper:      #F5EDD8;
-  --paper-2:    #EDE2C6;
-  --paper-line: rgba(11,18,32,0.10);
+  /* ── Paper surfaces (reporter cards) ── */
+  --paper-2:    #F5EDD8;
+  --paper-line: rgba(26,31,46,0.08);
 
-  /* Text */
-  --bone:    #E4EAF5;
-  --muted:   #8A9BB8;
-  --muted-2: #5A6880;
+  /* ── Text shortcuts (map to warm-light equivalents) ── */
+  --bone:    #1A1F2E;   /* "foreground" text on light bg */
+  --muted:   #4F5A70;   /* secondary text */
+  --muted-2: #8B95A8;   /* tertiary / placeholder */
 
-  /* Accent palette */
-  --pulse:      oklch(0.78 0.16 65);
-  --pulse-soft: oklch(0.78 0.16 65 / 0.15);
-  --civic:      oklch(0.72 0.14 152);
-  --alert:      oklch(0.66 0.21 25);
-  --sky:        oklch(0.74 0.10 230);
+  /* ── Primary (ocean blue) ── */
+  --primary:      oklch(0.48 0.09 220);
+  --primary-2:    oklch(0.42 0.10 220);
+  --primary-soft: oklch(0.48 0.09 220 / 0.10);
 
-  /* Typography */
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-sans:    'Space Grotesk', system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
-  --font-bangla:  'Hind Siliguri', 'Space Grotesk', sans-serif;
+  /* ── Accent (sunny amber) ── */
+  --accent:      oklch(0.82 0.14 75);
+  --accent-2:    oklch(0.74 0.16 60);
+  --accent-soft: oklch(0.82 0.14 75 / 0.12);
 
-  /* Spacing */
-  --screen-px:   clamp(20px, 5vw, 48px);
-  --radius-card: 8px;
-  --radius-sm:   4px;
+  /* ── Legacy aliases (keep existing components working) ── */
+  --pulse:      oklch(0.82 0.14 75);     /* = --accent */
+  --pulse-soft: oklch(0.82 0.14 75 / 0.12);
+  --civic:      oklch(0.68 0.13 155);    /* resolved green */
+  --alert:      oklch(0.64 0.19 25);     /* error / overdue coral */
+  --sky:        oklch(0.48 0.09 220);    /* = --primary */
+  --warn:       oklch(0.74 0.15 55);
+
+  /* ── Typography ── */
+  --font-display: "Caprasimo", Georgia, serif;
+  --font-sans:    "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono:    "DM Mono", ui-monospace, monospace;
+  --font-bangla:  "Hind Siliguri", "Plus Jakarta Sans", sans-serif;
+
+  /* ── Spacing & Shape ── */
+  --radius-card: 22px;
+  --radius-sm:   14px;
+  --radius-pill: 999px;
+
+  /* ── Elevation ── */
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.8) inset,
+                 0 1px 3px rgba(26,31,46,0.04),
+                 0 8px 24px rgba(26,31,46,0.06);
+  --shadow-sm:   0 2px 8px rgba(26,31,46,0.08);
+  --shadow-lg:   0 6px 20px rgba(26,31,46,0.14);
+  --shadow-btn:  0 6px 18px rgba(26,31,46,0.22);
+
+  --screen-px: clamp(20px, 5vw, 36px);
 }
 
-/* ── Light mode ──────────────────────────────────────────────────── */
-html[data-theme="light"] {
-  --ink:   #EFF2F7;
-  --ink-2: #FFFFFF;
-  --ink-3: #E2E8F0;
+/* ── Base ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
 
-  --shadow-card: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
-  --shadow-sm:   0 1px 4px rgba(0,0,0,0.07);
-
-  --line:   rgba(0,0,0,0.07);
-  --line-2: rgba(0,0,0,0.13);
-
-  --paper:      #E8DFC8;
-  --paper-2:    #DDD4BB;
-  --paper-line: rgba(11,18,32,0.10);
-
-  --bone:    #0E1726;
-  --muted:   #4A5568;
-  --muted-2: #718096;
-
-  --pulse-soft: oklch(0.78 0.16 65 / 0.12);
-}
-
-/* ── Base ──────────────────────────────────────────────────────── */
 body {
-  background-color: var(--ink);
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 64px 64px;
-  background-attachment: fixed;
-  color: var(--bone);
   font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
+  background:
+    radial-gradient(ellipse at 0% 0%,   oklch(0.82 0.14 75  / 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, oklch(0.48 0.09 220 / 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #F2EAD7 0%, #EFE6CF 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  line-height: 1.6;
 }
 
-/* Bangla language class */
-:lang(bn), [lang="bn"] {
-  font-family: var(--font-bangla);
-}
+::selection { background: var(--accent); color: var(--ink); }
 
-/* Status color map */
-[data-status="submitted"]    { --status-color: var(--muted); }
-[data-status="acknowledged"] { --status-color: var(--pulse); }
-[data-status="in_progress"]  { --status-color: var(--sky); }
+h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -0.015em; }
+.display { font-family: var(--display); font-weight: 400; letter-spacing: -0.01em; }
+
+/* ── Status → custom property ───────────────────────────── */
+[data-status="submitted"]    { --status-color: var(--ink-3); }
+[data-status="acknowledged"] { --status-color: var(--accent-2); }
+[data-status="in_progress"]  { --status-color: var(--primary); }
 [data-status="resolved"]     { --status-color: var(--civic); }
 [data-status="rejected"]     { --status-color: var(--alert); }
 
-/* Shared card style */
+/* ── Category color swatches ─────────────────────────────── */
+.cat-pothole     { --c-bg: oklch(0.92 0.05 60);  --c-fg: oklch(0.40 0.12 50);  }
+.cat-streetlight { --c-bg: oklch(0.92 0.07 90);  --c-fg: oklch(0.45 0.14 75);  }
+.cat-garbage     { --c-bg: oklch(0.92 0.05 145); --c-fg: oklch(0.42 0.12 150); }
+.cat-water       { --c-bg: oklch(0.92 0.05 220); --c-fg: oklch(0.42 0.12 220); }
+.cat-drainage    { --c-bg: oklch(0.92 0.05 250); --c-fg: oklch(0.42 0.12 250); }
+.cat-power       { --c-bg: oklch(0.92 0.06 30);  --c-fg: oklch(0.50 0.18 28);  }
+.cat-other       { --c-bg: oklch(0.92 0.04 300); --c-fg: oklch(0.45 0.12 300); }
+
+/* ── Shared card ─────────────────────────────────────────── */
 .card {
-  background: var(--ink-2);
-  border: 1px solid var(--line-2);
+  background: var(--paper);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
 
-/* Keyframes */
-@keyframes pulse-ring {
-  0%   { transform: scale(1);   opacity: 0.6; }
-  100% { transform: scale(2.8); opacity: 0; }
+/* ── Scrollbars ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: 4px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+/* ── Keyframes ───────────────────────────────────────────── */
+@keyframes ring {
+  0%   { transform: scale(0.5); opacity: 0.7; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
+/* Legacy alias for existing PulseMap rings */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.5); opacity: 0.7; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(1.15); }
+}
+
+/* Legacy alias */
 @keyframes live-blink {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--pulse-soft); }
-  50%       { opacity: 0.6; box-shadow: 0 0 0 6px transparent; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(1.15); }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes grow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 @keyframes ticker-bump {
-  0%   { background-color: var(--pulse-soft); }
+  0%   { background-color: var(--accent-soft); }
   100% { background-color: transparent; }
 }
 
 @keyframes slide-in {
   from { opacity: 0; transform: translateX(-8px); }
   to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -18,9 +18,9 @@ const COLUMNS: { status: IssueStatus; label: string }[] = [
 ];
 
 const statusColors: Record<IssueStatus, string> = {
-  submitted:    'var(--muted)',
-  acknowledged: 'var(--pulse)',
-  in_progress:  'var(--sky)',
+  submitted:    'var(--ink-3)',
+  acknowledged: 'var(--accent-2)',
+  in_progress:  'var(--primary)',
   resolved:     'var(--civic)',
   rejected:     'var(--alert)',
 };
@@ -84,8 +84,8 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
     }} onClick={onClose}>
       <div
         style={{
-          background: 'var(--ink-2)',
-          border: '1px solid var(--line-2)',
+          background: 'var(--paper)',
+          border: '1px solid var(--line)',
           borderRadius: 'var(--radius-card)',
           padding: '28px 32px',
           width: '100%',
@@ -95,7 +95,7 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <Eyebrow>Update status</Eyebrow>
-        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color: 'var(--bone)', margin: '8px 0 20px', fontWeight: 400 }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color: 'var(--ink)', margin: '8px 0 20px', fontWeight: 400 }}>
           {issue.title}
         </h3>
 
@@ -131,8 +131,8 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
               onChange={(e) => setNote(e.target.value)}
               placeholder="Brief note about this status change…"
               style={{
-                background: 'var(--ink-3)', border: '1px solid var(--line-2)', borderRadius: 'var(--radius-card)',
-                color: 'var(--bone)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
+                background: 'rgba(255,255,255,0.5)', border: '1px solid var(--line)', borderRadius: 'var(--radius-card)',
+                color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
                 padding: '10px 12px', resize: 'vertical', outline: 'none',
               }}
             />
@@ -148,8 +148,8 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
                 placeholder="Describe how the issue was resolved…"
                 required
                 style={{
-                  background: 'var(--ink-3)', border: '1px solid var(--civic)', borderRadius: 'var(--radius-card)',
-                  color: 'var(--bone)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
+                  background: 'rgba(255,255,255,0.5)', border: '1px solid var(--civic)', borderRadius: 'var(--radius-card)',
+                  color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
                   padding: '10px 12px', resize: 'vertical', outline: 'none',
                 }}
               />
@@ -166,8 +166,8 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
                 placeholder="Duplicate / out-of-scope / invalid…"
                 required
                 style={{
-                  background: 'var(--ink-3)', border: '1px solid var(--alert)', borderRadius: 'var(--radius-card)',
-                  color: 'var(--bone)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
+                  background: 'rgba(255,255,255,0.5)', border: '1px solid var(--alert)', borderRadius: 'var(--radius-card)',
+                  color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
                   padding: '10px 12px', resize: 'vertical', outline: 'none',
                 }}
               />
@@ -193,7 +193,7 @@ function IssueCard({ issue, onUpdateStatus }: { issue: Issue; onUpdateStatus: (i
 
   return (
     <div style={{
-      background: 'var(--ink-2)',
+      background: 'var(--paper)',
       border: `1px solid ${overdue ? 'var(--alert)' : 'var(--line-2)'}`,
       borderRadius: 'var(--radius-card)',
       padding: '14px 16px',
@@ -214,7 +214,7 @@ function IssueCard({ issue, onUpdateStatus }: { issue: Issue; onUpdateStatus: (i
         <h4 style={{
           fontFamily: 'var(--font-sans)',
           fontSize: '0.82rem',
-          color: 'var(--bone)',
+          color: 'var(--ink)',
           margin: '0 0 6px',
           lineHeight: 1.4,
           fontWeight: 500,
@@ -225,7 +225,7 @@ function IssueCard({ issue, onUpdateStatus }: { issue: Issue; onUpdateStatus: (i
 
       <p style={{
         fontFamily: 'var(--font-mono)', fontSize: '0.62rem',
-        color: 'var(--muted-2)', margin: '0 0 10px', letterSpacing: '0.04em',
+        color: 'var(--ink-3)', margin: '0 0 10px', letterSpacing: '0.04em',
         display: 'flex', alignItems: 'center', gap: 4,
       }}>
         <MapPin size={9} /> {issue.address}
@@ -238,7 +238,7 @@ function IssueCard({ issue, onUpdateStatus }: { issue: Issue; onUpdateStatus: (i
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--muted-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Clock size={9} /> {timeSince(issue.createdAt)}
         </span>
         <Btn
@@ -292,10 +292,10 @@ export function StaffQueue() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search issues…"
             style={{
-              background: 'var(--ink-3)',
-              border: '1px solid var(--line-2)',
+              background: 'rgba(255,255,255,0.5)',
+              border: '1px solid var(--line)',
               borderRadius: 'var(--radius-card)',
-              color: 'var(--bone)',
+              color: 'var(--ink)',
               fontFamily: 'var(--font-sans)',
               fontSize: '0.875rem',
               padding: '9px 14px',
@@ -307,7 +307,7 @@ export function StaffQueue() {
         </div>
 
         {isLoading ? (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--muted)' }}>Loading queue…</p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-2)' }}>Loading queue…</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, alignItems: 'start' }}>
             {COLUMNS.map(({ status, label }) => {
@@ -319,7 +319,7 @@ export function StaffQueue() {
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     padding: '10px 12px',
-                    background: 'var(--ink-2)',
+                    background: 'var(--paper)',
                     border: `1px solid ${color}`,
                     borderRadius: 'var(--radius-card)',
                     marginBottom: 10,
@@ -343,7 +343,7 @@ export function StaffQueue() {
                       <div style={{
                         padding: '20px 12px',
                         fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-                        color: 'var(--muted-2)', textAlign: 'center',
+                        color: 'var(--ink-3)', textAlign: 'center',
                         border: '1px dashed var(--line)', borderRadius: 'var(--radius-card)',
                       }}>
                         No issues

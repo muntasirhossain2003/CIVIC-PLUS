@@ -2,37 +2,35 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   MapPin, BarChart3, Plus, LayoutDashboard, Bell,
   ClipboardList, TrendingUp, Users, Building2, Tag,
-  ScrollText, LogOut, LogIn, Sun, Moon, Languages,
+  ScrollText, LogOut, LogIn, Languages,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import { useThemeStore } from '../../store/themeStore';
 import { useLangStore } from '../../store/langStore';
 import { useT } from '../../lib/useT';
 import { authApi } from '../../lib/api';
-import { RolePill } from '../ui/RolePill';
 
 function navItems(t: ReturnType<typeof useT>) {
   return [
-    { index: '01', portal: 'PUBLIC',  label: t('nav_map'),           to: '/',                  icon: MapPin,         roles: [] },
-    { index: '02', portal: 'PUBLIC',  label: t('nav_transparency'),  to: '/transparency',       icon: BarChart3,      roles: [] },
-    { index: '03', portal: 'CITIZEN', label: t('nav_report'),        to: '/report',             icon: Plus,           roles: ['citizen','staff','admin'] },
-    { index: '04', portal: 'CITIZEN', label: t('nav_dashboard'),     to: '/dashboard',          icon: LayoutDashboard,roles: ['citizen','staff','admin'] },
-    { index: '05', portal: 'CITIZEN', label: t('nav_notifications'), to: '/notifications',      icon: Bell,           roles: ['citizen','staff','admin'] },
-    { index: '06', portal: 'STAFF',   label: t('nav_staff_queue'),   to: '/staff/queue',        icon: ClipboardList,  roles: ['staff','admin'] },
-    { index: '07', portal: 'ADMIN',   label: t('nav_analytics'),     to: '/admin/analytics',    icon: TrendingUp,     roles: ['admin'] },
-    { index: '08', portal: 'ADMIN',   label: t('nav_users'),         to: '/admin/users',        icon: Users,          roles: ['admin'] },
-    { index: '09', portal: 'ADMIN',   label: t('nav_departments'),   to: '/admin/departments',  icon: Building2,      roles: ['admin'] },
-    { index: '10', portal: 'ADMIN',   label: t('nav_categories'),    to: '/admin/categories',   icon: Tag,            roles: ['admin'] },
-    { index: '11', portal: 'ADMIN',   label: t('nav_audit_logs'),    to: '/admin/audit-logs',   icon: ScrollText,     roles: ['admin'] },
+    { label: t('nav_map'),           to: '/',               icon: MapPin,          roles: [] },
+    { label: t('nav_transparency'),  to: '/transparency',    icon: BarChart3,       roles: [] },
+    { label: t('nav_report'),        to: '/report',          icon: Plus,            roles: ['citizen','staff','admin'] },
+    { label: t('nav_dashboard'),     to: '/dashboard',       icon: LayoutDashboard, roles: ['citizen','staff','admin'] },
+    { label: t('nav_notifications'), to: '/notifications',   icon: Bell,            roles: ['citizen','staff','admin'] },
+    { label: t('nav_staff_queue'),   to: '/staff/queue',     icon: ClipboardList,   roles: ['staff','admin'] },
+    { label: t('nav_analytics'),     to: '/admin/analytics', icon: TrendingUp,      roles: ['admin'] },
+    { label: t('nav_users'),         to: '/admin/users',     icon: Users,           roles: ['admin'] },
+    { label: t('nav_departments'),   to: '/admin/departments',icon: Building2,      roles: ['admin'] },
+    { label: t('nav_categories'),    to: '/admin/categories', icon: Tag,            roles: ['admin'] },
+    { label: t('nav_audit_logs'),    to: '/admin/audit-logs', icon: ScrollText,     roles: ['admin'] },
   ] as const;
 }
 
 export function Sidebar() {
   const { user, clearUser } = useAuthStore();
-  const { theme, toggle: toggleTheme } = useThemeStore();
   const { lang, toggle: toggleLang } = useLangStore();
   const navigate = useNavigate();
   const t = useT();
+  const isBn = lang === 'bn';
 
   const items = navItems(t);
   const visible = items.filter((item) => {
@@ -46,62 +44,68 @@ export function Sidebar() {
     navigate('/login');
   }
 
-  const isBn = lang === 'bn';
-
   return (
     <aside style={{
-      width: 272,
-      background: 'var(--ink-2)',
-      borderRight: '1px solid var(--line-2)',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
+      width: 264,
+      flexShrink: 0,
       position: 'sticky',
       top: 0,
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: 'rgba(255,255,255,0.55)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderRight: '1px solid var(--line)',
       overflowY: 'auto',
-      boxShadow: '2px 0 16px rgba(0,0,0,0.2)',
     }}>
 
       {/* Brand */}
-      <div style={{ padding: '24px 20px 18px', borderBottom: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <div style={{ position: 'relative', width: 24, height: 24, flexShrink: 0 }}>
-            <span style={{ position: 'absolute', inset: '25%', borderRadius: '50%', background: 'var(--pulse)' }} />
-            {[0, 1].map((i) => (
-              <span key={i} style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                border: '1.5px solid var(--pulse)',
-                animation: `pulse-ring 1.2s ease-out ${i * 0.6}s infinite`,
-                opacity: 0,
-              }} />
-            ))}
-          </div>
-          <h1 style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '1.4rem',
-            margin: 0,
-            color: 'var(--bone)',
-            fontWeight: 400,
-            letterSpacing: '-0.01em',
+      <div style={{ padding: '24px 18px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Brand mark */}
+          <div style={{
+            width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+            background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 6px 16px oklch(0.82 0.14 75 / 0.45)',
+            position: 'relative',
+            overflow: 'hidden',
           }}>
-            Civic<em>Pulse</em>
-          </h1>
+            <span style={{
+              width: 10, height: 10, borderRadius: '50%', background: 'white',
+              animation: 'blink 1.6s ease-in-out infinite',
+              position: 'relative', zIndex: 1,
+            }} />
+          </div>
+          <div>
+            <h1 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.5rem',
+              fontWeight: 400,
+              color: 'var(--ink)',
+              margin: 0,
+              letterSpacing: '-0.015em',
+              lineHeight: 1,
+            }}>
+              Civic<em style={{ color: 'var(--primary)', fontStyle: 'italic' }}>Pulse</em>
+            </h1>
+            <p style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.62rem',
+              color: 'var(--ink-3)',
+              margin: '3px 0 0',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}>
+              {isBn ? 'সিভিক রিপোর্টিং' : 'Civic Reporting'}
+            </p>
+          </div>
         </div>
-        <p style={{
-          fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-          fontSize: '0.68rem',
-          color: 'var(--muted)',
-          margin: 0,
-          letterSpacing: isBn ? '0' : '0.08em',
-          textTransform: isBn ? 'none' : 'uppercase',
-          fontWeight: 500,
-        }}>
-          {t('tagline')}
-        </p>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '8px 0' }}>
+      <nav style={{ flex: 1, padding: '4px 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
         {visible.map((item) => {
           const Icon = item.icon;
           return (
@@ -113,52 +117,42 @@ export function Sidebar() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
-                padding: '11px 18px',
+                padding: '11px 14px',
                 textDecoration: 'none',
-                borderLeft: isActive ? '3px solid var(--pulse)' : '3px solid transparent',
-                background: isActive ? 'var(--pulse-soft)' : 'transparent',
-                color: isActive ? 'var(--bone)' : 'var(--muted)',
-                transition: 'all 0.15s ease',
-                margin: '1px 0',
-                borderRadius: '0 6px 6px 0',
-                marginRight: 8,
+                borderRadius: 14,
+                background: isActive ? 'var(--ink)' : 'transparent',
+                color: isActive ? '#fff' : 'var(--ink-2)',
+                fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                fontWeight: isActive ? 600 : 500,
+                fontSize: isBn ? '0.92rem' : '0.875rem',
+                transition: 'all 0.18s ease',
+                boxShadow: isActive ? '0 6px 18px rgba(26,31,46,0.18)' : 'none',
               })}
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLAnchorElement;
-                if (!el.classList.contains('active')) {
-                  el.style.background = 'var(--ink-3)';
-                  el.style.color = 'var(--bone)';
+                if (!el.style.background.includes('var(--ink)') && el.style.background !== 'var(--ink)') {
+                  el.style.background = 'rgba(255,255,255,0.5)';
+                  el.style.color = 'var(--ink)';
                 }
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLAnchorElement;
-                if (!el.classList.contains('active')) {
+                const active = el.getAttribute('aria-current') === 'page';
+                if (!active) {
                   el.style.background = 'transparent';
-                  el.style.color = 'var(--muted)';
+                  el.style.color = 'var(--ink-2)';
                 }
               }}
             >
               {({ isActive }) => (
                 <>
                   <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.58rem',
-                    color: isActive ? 'var(--pulse)' : 'var(--muted-2)',
-                    minWidth: 18,
-                    letterSpacing: '0.04em',
+                    display: 'flex', flexShrink: 0,
+                    color: isActive ? '#fff' : 'var(--ink-3)',
                   }}>
-                    {item.index}
+                    <Icon size={17} strokeWidth={isActive ? 2 : 1.8} />
                   </span>
-                  <Icon size={15} strokeWidth={isActive ? 2 : 1.5} />
-                  <span style={{
-                    fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-                    fontSize: isBn ? '0.95rem' : '0.88rem',
-                    fontWeight: isActive ? 600 : 400,
-                    flex: 1,
-                    letterSpacing: isBn ? '0' : '0.01em',
-                  }}>
-                    {item.label}
-                  </span>
+                  <span>{item.label}</span>
                 </>
               )}
             </NavLink>
@@ -166,98 +160,64 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Utility buttons */}
-      <div style={{ padding: '8px 12px', borderTop: '1px solid var(--line)', display: 'flex', gap: 6 }}>
-        {/* Language toggle */}
+      {/* Language toggle */}
+      <div style={{ padding: '8px 10px', borderTop: '1px solid var(--line)' }}>
         <button
           onClick={toggleLang}
           title={lang === 'en' ? 'Switch to বাংলা' : 'Switch to English'}
           style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            background: 'var(--ink-3)',
-            border: '1px solid var(--line-2)',
-            borderRadius: 6,
+            width: '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: 'transparent',
+            border: '1.5px solid var(--line-2)',
+            borderRadius: 999,
             cursor: 'pointer',
-            color: 'var(--muted)',
+            color: 'var(--ink-2)',
             fontFamily: lang === 'en' ? 'var(--font-bangla)' : 'var(--font-sans)',
-            fontSize: lang === 'en' ? '0.9rem' : '0.75rem',
-            fontWeight: 500,
-            padding: '7px 10px',
-            transition: 'all 0.15s',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            padding: '9px 14px',
+            transition: 'all 0.18s ease',
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--pulse)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--pulse)';
+            const el = e.currentTarget as HTMLButtonElement;
+            el.style.borderColor = 'var(--ink)';
+            el.style.color = 'var(--ink)';
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
+            const el = e.currentTarget as HTMLButtonElement;
+            el.style.borderColor = 'var(--line-2)';
+            el.style.color = 'var(--ink-2)';
           }}
         >
-          <Languages size={13} />
-          {t('language')}
-        </button>
-
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            background: 'var(--ink-3)',
-            border: '1px solid var(--line-2)',
-            borderRadius: 6,
-            cursor: 'pointer',
-            color: 'var(--muted)',
-            fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-            fontSize: '0.75rem',
-            padding: '7px 12px',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--pulse)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--pulse)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
-          }}
-        >
-          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-          {theme === 'dark' ? t('light_mode') : t('dark_mode')}
+          <Languages size={14} />
+          {lang === 'en' ? 'বাংলা' : 'English'}
         </button>
       </div>
 
       {/* User footer */}
-      <div style={{ borderTop: '1px solid var(--line)', padding: '14px 16px' }}>
+      <div style={{ padding: '10px 10px 16px', borderTop: '1px solid var(--line)' }}>
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {/* Avatar */}
             <div style={{
-              width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-              background: 'var(--pulse-soft)',
-              border: '2px solid var(--pulse)',
+              width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.85rem',
+              fontSize: '0.9rem',
               fontWeight: 700,
-              color: 'var(--pulse)',
+              color: 'var(--ink)',
+              boxShadow: '0 4px 12px oklch(0.82 0.14 75 / 0.35)',
             }}>
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{
                 fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-                fontSize: '0.88rem',
-                color: 'var(--bone)',
-                margin: '0 0 2px',
+                fontSize: '0.875rem',
+                color: 'var(--ink)',
+                margin: 0,
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
@@ -265,53 +225,64 @@ export function Sidebar() {
               }}>
                 {user.name}
               </p>
-              <RolePill role={user.role} pulse />
+              <p style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.65rem',
+                color: 'var(--ink-3)',
+                margin: '1px 0 0',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+              }}>
+                {user.role}
+              </p>
             </div>
             <button
               onClick={handleLogout}
               title={t('sign_out')}
               style={{
-                background: 'none',
-                border: '1px solid var(--line-2)',
-                borderRadius: 6,
+                background: 'transparent',
+                border: '1.5px solid var(--line-2)',
+                borderRadius: 999,
                 cursor: 'pointer',
-                color: 'var(--muted)',
+                color: 'var(--ink-3)',
                 display: 'flex',
                 alignItems: 'center',
-                padding: '6px 8px',
-                transition: 'all 0.15s',
+                justifyContent: 'center',
+                padding: '8px',
+                transition: 'all 0.18s ease',
                 flexShrink: 0,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--alert)';
-                (e.currentTarget as HTMLButtonElement).style.color = 'var(--alert)';
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.borderColor = 'var(--alert)';
+                el.style.color = 'var(--alert)';
+                el.style.background = 'oklch(0.64 0.19 25 / 0.08)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)';
-                (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted)';
+                const el = e.currentTarget as HTMLButtonElement;
+                el.style.borderColor = 'var(--line-2)';
+                el.style.color = 'var(--ink-3)';
+                el.style.background = 'transparent';
               }}
             >
-              <LogOut size={14} />
+              <LogOut size={15} />
             </button>
           </div>
         ) : (
           <NavLink
             to="/login"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-              fontSize: '0.88rem',
-              fontWeight: 500,
-              color: 'var(--pulse)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: '#fff',
               textDecoration: 'none',
-              padding: '8px 12px',
-              background: 'var(--pulse-soft)',
-              border: '1px solid var(--pulse)',
-              borderRadius: 6,
-              justifyContent: 'center',
-              transition: 'all 0.15s',
+              padding: '12px 18px',
+              background: 'var(--ink)',
+              borderRadius: 999,
+              boxShadow: 'var(--shadow-btn)',
+              transition: 'all 0.18s ease',
             }}
           >
             <LogIn size={15} />

@@ -7,21 +7,28 @@ import { CanvasHead } from '../../components/layout/CanvasHead';
 import { PulseMap } from '../../components/map/PulseMap';
 import { LiveTicker } from '../../components/feed/LiveTicker';
 import { StatusPill } from '../../components/ui/StatusPill';
-import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Btn } from '../../components/ui/Btn';
 import { useAuthStore } from '../../store/authStore';
 import { useLangStore } from '../../store/langStore';
 import { useT } from '../../lib/useT';
-import { MapPin, Plus } from 'lucide-react';
+import { MapPin, Plus, TrendingUp } from 'lucide-react';
 
-const STATUS_FILTERS = ['', 'submitted', 'acknowledged', 'in_progress', 'resolved'];
+const STATUS_FILTERS = ['', 'submitted', 'acknowledged', 'in_progress', 'resolved'] as const;
+
+const STATUS_LABELS: Record<string, { en: string; bn: string }> = {
+  '':            { en: 'All',         bn: 'সব' },
+  submitted:     { en: 'Submitted',   bn: 'জমা' },
+  acknowledged:  { en: 'Acknowledged',bn: 'গৃহীত' },
+  in_progress:   { en: 'In Progress', bn: 'চলছে' },
+  resolved:      { en: 'Resolved',    bn: 'সমাধান' },
+};
 
 export function CitizenHome() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
-  const [picked, setPicked]         = useState<Issue | null>(null);
-  const [statusFilter, setFilter]   = useState('');
-  const t    = useT();
+  const [picked, setPicked]       = useState<Issue | null>(null);
+  const [statusFilter, setFilter] = useState('');
   const lang = useLangStore((s) => s.lang);
+  const t    = useT();
   const isBn = lang === 'bn';
 
   const { data, isLoading } = useQuery({
@@ -31,100 +38,141 @@ export function CitizenHome() {
 
   const issues: Issue[] = data?.data ?? [];
 
-  const statusLabel: Record<string, string> = {
-    '':            t('all'),
-    submitted:     t('status_submitted'),
-    acknowledged:  t('status_acknowledged'),
-    in_progress:   t('status_in_progress'),
-    resolved:      t('status_resolved'),
-  };
-
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 48px)' }}>
+    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
-        eyebrow={t('home_eyebrow')}
+        eyebrow={isBn ? 'লাইভ ম্যাপ' : 'Live Map'}
         title={isBn
-          ? t('home_title')
-          : <>{t('home_title').split(' ').slice(0,1).join(' ')} <em>{t('home_title').split(' ').slice(1).join(' ')}</em></>
+          ? 'সমস্যার মানচিত্র'
+          : <><em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>Live</em> issue map</>
         }
-        subtitle={`${issues.length} ${t('home_subtitle')}`}
+        subtitle={isBn
+          ? `${issues.length}টি সমস্যা দেখানো হচ্ছে`
+          : `${issues.length} issues in your area`
+        }
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
-        {/* Map column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Filter pills */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Eyebrow>{t('filter')}</Eyebrow>
-            {STATUS_FILTERS.map((s) => (
-              <button
-                key={s || 'all'}
-                onClick={() => setFilter(s)}
-                style={{
-                  background: statusFilter === s ? 'var(--pulse-soft)' : 'var(--ink-3)',
-                  border: `1px solid ${statusFilter === s ? 'var(--pulse)' : 'var(--line-2)'}`,
-                  borderRadius: 6,
-                  color: statusFilter === s ? 'var(--pulse)' : 'var(--muted)',
-                  fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-                  fontSize: isBn ? '0.82rem' : '0.75rem',
-                  fontWeight: 500,
-                  padding: '5px 12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {statusLabel[s]}
-              </button>
-            ))}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
+
+        {/* Left — map column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Filter chips */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {STATUS_FILTERS.map((s) => {
+              const active = statusFilter === s;
+              const lbl = isBn ? STATUS_LABELS[s].bn : STATUS_LABELS[s].en;
+              return (
+                <button
+                  key={s || 'all'}
+                  onClick={() => setFilter(s)}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '7px 16px',
+                    borderRadius: 999,
+                    border: active ? '1.5px solid var(--ink)' : '1.5px solid var(--line)',
+                    background: active ? 'var(--ink)' : 'rgba(255,255,255,0.7)',
+                    color: active ? '#fff' : 'var(--ink-2)',
+                    fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                    fontSize: isBn ? '0.85rem' : '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.18s ease',
+                    boxShadow: active ? 'var(--shadow-btn)' : 'none',
+                  }}
+                >
+                  {lbl}
+                </button>
+              );
+            })}
           </div>
 
+          {/* Map */}
           {isLoading ? (
             <div style={{
-              height: 500, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'var(--ink-3)', borderRadius: 8,
-              fontFamily: 'var(--font-sans)', fontSize: '0.85rem', color: 'var(--muted)',
+              height: 500,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(255,255,255,0.6)',
+              borderRadius: 'var(--radius-card)',
+              border: '1px solid var(--line)',
+              boxShadow: 'var(--shadow-card)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.875rem',
+              color: 'var(--ink-3)',
+              gap: 10,
             }}>
-              {t('loading')}
+              <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+              {isBn ? 'লোড হচ্ছে…' : 'Loading map…'}
             </div>
           ) : (
-            <PulseMap issues={issues} height={500} onPick={setPicked} picked={picked?._id} />
+            <PulseMap
+              issues={issues}
+              height={500}
+              onPick={setPicked}
+              picked={picked?._id}
+            />
           )}
 
           {/* Picked issue card */}
           {picked && (
             <div style={{
-              background: 'var(--ink-2)',
-              border: '1px solid var(--line-2)',
-              borderRadius: 10,
-              padding: '18px 20px',
+              background: 'var(--paper)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-card)',
+              padding: '20px 22px',
               animation: 'fade-up 0.3s ease both',
               boxShadow: 'var(--shadow-card)',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <Eyebrow>{picked.category} · {picked.severity}</Eyebrow>
+                  <p style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.65rem',
+                    color: 'var(--ink-3)',
+                    margin: '0 0 6px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                  }}>
+                    {picked.category} · {picked.severity}
+                  </p>
                   <h3 style={{
-                    fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-display)',
-                    fontSize: '1.2rem', color: 'var(--bone)',
-                    margin: '6px 0 4px', fontWeight: isBn ? 700 : 400,
+                    fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                    fontSize: '1.05rem',
+                    fontWeight: 700,
+                    color: 'var(--ink)',
+                    margin: '0 0 6px',
+                    letterSpacing: '-0.01em',
                   }}>
                     {picked.title}
                   </h3>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--muted-2)', margin: '0 0 10px' }}>
-                    <MapPin size={10} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+                  <p style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.78rem',
+                    color: 'var(--ink-3)',
+                    margin: '0 0 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}>
+                    <MapPin size={11} />
                     {picked.address}
                   </p>
                   <StatusPill status={picked.status} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
                   <Link to={`/issues/${picked._id}`}>
-                    <Btn variant="ghost" size="sm">View →</Btn>
+                    <Btn size="sm">{isBn ? 'দেখুন →' : 'View →'}</Btn>
                   </Link>
-                  <button onClick={() => setPicked(null)} style={{
-                    background: 'none', border: 'none', color: 'var(--muted-2)',
-                    cursor: 'pointer', fontSize: '0.75rem', fontFamily: 'var(--font-sans)',
-                  }}>
-                    {t('close')} ✕
+                  <button
+                    onClick={() => setPicked(null)}
+                    style={{
+                      background: 'none', border: 'none',
+                      color: 'var(--ink-3)', cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
+                    {isBn ? 'বন্ধ করুন' : 'Close'} ✕
                   </button>
                 </div>
               </div>
@@ -134,59 +182,112 @@ export function CitizenHome() {
 
         {/* Right column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* CTA card */}
           {isAuthenticated ? (
             <Link to="/report" style={{ textDecoration: 'none' }}>
               <div style={{
-                background: 'var(--pulse-soft)',
-                border: '1px solid var(--pulse)',
-                borderRadius: 10,
-                padding: '18px 20px',
+                background: 'var(--ink)',
+                borderRadius: 'var(--radius-card)',
+                padding: '22px',
                 cursor: 'pointer',
-                transition: 'all 0.15s',
-                boxShadow: '0 2px 12px oklch(0.78 0.16 65 / 0.2)',
-              }}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
-                  <Plus size={16} style={{ color: 'var(--pulse)', flexShrink: 0 }} />
-                  <span style={{
-                    fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-                    fontWeight: 600, color: 'var(--pulse)', fontSize: '0.9rem',
-                  }}>
-                    {t('nav_report')}
-                  </span>
+                boxShadow: 'var(--shadow-lg)',
+                transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+              }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.transform = 'translateY(-2px)';
+                  el.style.boxShadow = '0 12px 32px rgba(26,31,46,0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.transform = '';
+                  el.style.boxShadow = 'var(--shadow-lg)';
+                }}
+              >
+                <div style={{
+                  width: 44, height: 44, borderRadius: 14,
+                  background: 'var(--accent)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: 14,
+                  boxShadow: '0 6px 16px oklch(0.82 0.14 75 / 0.5)',
+                }}>
+                  <Plus size={22} strokeWidth={2.5} style={{ color: 'var(--ink)' }} />
                 </div>
+                <h3 style={{
+                  fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                  fontWeight: 700, color: '#fff',
+                  fontSize: '1rem', margin: '0 0 6px',
+                }}>
+                  {isBn ? 'সমস্যা রিপোর্ট করুন' : 'Report an issue'}
+                </h3>
                 <p style={{
                   fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
-                  fontSize: '0.8rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5,
+                  fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)',
+                  margin: 0, lineHeight: 1.5,
                 }}>
-                  {isBn ? 'GPS ও ছবিসহ সমস্যা রিপোর্ট করুন' : 'Photo + GPS location captured automatically.'}
+                  {isBn ? 'GPS ও ছবিসহ জমা দিন' : 'Photo + GPS captured automatically.'}
                 </p>
               </div>
             </Link>
           ) : (
             <div style={{
-              background: 'var(--ink-2)',
-              border: '1px solid var(--line-2)',
-              borderRadius: 10,
-              padding: '18px 20px',
+              background: 'var(--paper)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-card)',
+              padding: '22px',
               textAlign: 'center',
               boxShadow: 'var(--shadow-card)',
             }}>
-              <p style={{ fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)', fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 14px', lineHeight: 1.5 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: '50%',
+                background: 'var(--primary-soft)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 14px',
+              }}>
+                <MapPin size={20} style={{ color: 'var(--primary)' }} />
+              </div>
+              <p style={{
+                fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
+                fontSize: '0.875rem', color: 'var(--ink-2)',
+                margin: '0 0 16px', lineHeight: 1.55,
+              }}>
                 {isBn ? 'সমস্যা রিপোর্ট করতে সাইন ইন করুন।' : 'Sign in to report civic issues in your area.'}
               </p>
-              <Link to="/login"><Btn size="sm">{t('sign_in')}</Btn></Link>
+              <Link to="/login">
+                <Btn size="sm" style={{ width: '100%' }}>{t('sign_in')}</Btn>
+              </Link>
             </div>
           )}
 
-          {/* Live ticker */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Eyebrow>{isBn ? 'লাইভ ফিড' : 'Live feed'}</Eyebrow>
+          {/* Live feed */}
+          <div style={{
+            background: 'var(--paper)',
+            borderRadius: 'var(--radius-card)',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-card)',
+          }}>
+            {/* Feed header */}
+            <div style={{
+              padding: '16px 18px 14px',
+              borderBottom: '1px solid var(--line)',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              <TrendingUp size={15} style={{ color: 'var(--ink-3)' }} />
+              <span style={{
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 700,
+                fontSize: '0.875rem',
+                color: 'var(--ink)',
+              }}>
+                {isBn ? 'লাইভ ফিড' : 'Live feed'}
+              </span>
               <span style={{
                 width: 7, height: 7, borderRadius: '50%',
-                background: 'var(--pulse)',
-                animation: 'live-blink 1.4s ease-in-out infinite',
+                background: 'var(--civic)',
+                animation: 'blink 1.6s ease-in-out infinite',
                 display: 'inline-block',
+                marginLeft: 2,
               }} />
             </div>
             <LiveTicker initial={issues.slice(0, 10).map((i) => ({

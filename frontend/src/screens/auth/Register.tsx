@@ -7,7 +7,7 @@ import { Field } from '../../components/ui/Field';
 export function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
-  const [error, setError] = useState('');
+  const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
 
   function set(k: keyof typeof form) {
@@ -38,59 +38,95 @@ export function Register() {
       padding: '24px',
     }}>
       <div style={{ width: '100%', maxWidth: 420, animation: 'fade-up 0.5s ease both' }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.2rem', fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px' }}>
-            Civic<em>Pulse</em>
+
+        {/* Brand */}
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 16,
+            background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px oklch(0.82 0.14 75 / 0.45)',
+          }}>
+            <span style={{
+              width: 12, height: 12, borderRadius: '50%', background: 'white',
+              animation: 'blink 1.6s ease-in-out infinite',
+            }} />
+          </div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '2rem', fontWeight: 400,
+            color: 'var(--ink)', margin: '0 0 4px',
+            letterSpacing: '-0.015em',
+          }}>
+            Civic<em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>Pulse</em>
           </h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.14em' }}>
-            CREATE YOUR ACCOUNT
+          <p style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.65rem', color: 'var(--ink-3)',
+            letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0,
+          }}>
+            Create your account
           </p>
         </div>
 
+        {/* Card */}
         <div style={{
-          background: 'var(--ink-2)',
-          border: '1px solid var(--line-2)',
+          background: 'var(--paper)',
           borderRadius: 'var(--radius-card)',
           padding: '32px',
+          boxShadow: 'var(--shadow-card)',
+          border: '1px solid var(--line)',
         }}>
+          <h2 style={{
+            fontFamily: 'var(--font-sans)', fontSize: '1.1rem',
+            fontWeight: 700, color: 'var(--ink)', margin: '0 0 6px',
+          }}>
+            Join CivicPulse
+          </h2>
+          <p style={{
+            fontFamily: 'var(--font-sans)', fontSize: '0.875rem',
+            color: 'var(--ink-3)', margin: '0 0 24px',
+          }}>
+            Report issues and help improve your city
+          </p>
+
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Field label="Full name" type="text" value={form.name} onChange={set('name')} required autoComplete="name" />
-            <Field label="Email address" type="email" value={form.email} onChange={set('email')} required autoComplete="email" />
-            <Field
-              label="Password"
-              type="password"
-              value={form.password}
-              onChange={set('password')}
-              required
-              autoComplete="new-password"
-            />
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--muted)', margin: '-8px 0 0' }}>
-              Min 8 chars · uppercase · lowercase · number · special character (e.g. @, #, !)
-            </p>
+            <Field label="Full name"     type="text"     value={form.name}     onChange={set('name')}     required autoComplete="name" />
+            <Field label="Email address" type="email"    value={form.email}    onChange={set('email')}    required autoComplete="email" />
+            <div>
+              <Field label="Password"   type="password" value={form.password} onChange={set('password')} required autoComplete="new-password" />
+              <p style={{
+                fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
+                color: 'var(--ink-3)', margin: '6px 0 0', lineHeight: 1.5,
+              }}>
+                Min 8 chars · uppercase · lowercase · number · special char (@, #, !)
+              </p>
+            </div>
             <Field label="Phone (optional)" type="tel" value={form.phone} onChange={set('phone')} autoComplete="tel" />
 
             {error && (
               <div style={{
-                background: 'oklch(0.66 0.21 25 / 0.12)',
-                border: '1px solid var(--alert)',
-                borderRadius: 'var(--radius-card)',
-                padding: '10px 14px',
+                background: 'oklch(0.64 0.19 25 / 0.08)',
+                border: '1px solid oklch(0.64 0.19 25 / 0.3)',
+                borderRadius: 12, padding: '10px 14px',
+                fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--alert)',
               }}>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--alert)', margin: 0 }}>
-                  {error}
-                </p>
+                {error}
               </div>
             )}
 
-            <Btn type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}>
+            <Btn type="submit" disabled={loading} style={{ width: '100%', marginTop: 4 }}>
               {loading ? 'Creating account…' : 'Create account'}
             </Btn>
           </form>
 
           <div style={{ borderTop: '1px solid var(--line)', marginTop: 24, paddingTop: 20 }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted)', margin: 0 }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink-3)', margin: 0 }}>
               Already have an account?{' '}
-              <Link to="/login" style={{ color: 'var(--pulse)', textDecoration: 'none' }}>Sign in</Link>
+              <Link to="/login" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
+                Sign in →
+              </Link>
             </p>
           </div>
         </div>

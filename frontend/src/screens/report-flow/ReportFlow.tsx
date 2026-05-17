@@ -321,7 +321,7 @@ export function ReportFlow() {
       {/* ── Step: Photos ── */}
       {step === 'photos' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, animation: 'fade-up 0.3s ease both' }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--ink-2)', margin: 0, lineHeight: 1.6 }}>
             Photo evidence speeds up resolution. Upload up to 5 images — they go directly to S3.
           </p>
 
@@ -333,8 +333,8 @@ export function ReportFlow() {
             cursor: 'pointer',
             display: 'block',
           }}>
-            <Camera size={24} style={{ color: 'var(--muted)', marginBottom: 8 }} />
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--muted)', margin: 0, letterSpacing: '0.06em' }}>
+            <Camera size={24} style={{ color: 'var(--ink-2)', marginBottom: 8 }} />
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-2)', margin: 0, letterSpacing: '0.06em' }}>
               {uploading ? 'Uploading…' : 'Click to choose photos (max 5)'}
             </p>
             <input
@@ -353,7 +353,7 @@ export function ReportFlow() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
                 {form.photos.map((key, i) => (
                   <div key={i} style={{
-                    background: 'var(--ink-3)',
+                    background: 'rgba(255,255,255,0.5)',
                     border: '1px solid var(--civic)',
                     borderRadius: 'var(--radius-card)',
                     padding: '4px 10px',
@@ -378,8 +378,8 @@ export function ReportFlow() {
       {step === 'review' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'fade-up 0.3s ease both' }}>
           <div style={{
-            background: 'var(--ink-2)',
-            border: '1px solid var(--line-2)',
+            background: 'var(--paper)',
+            border: '1px solid var(--line)',
             borderRadius: 'var(--radius-card)',
             overflow: 'hidden',
           }}>
@@ -390,23 +390,23 @@ export function ReportFlow() {
               ['Photos', `${form.photos.length} uploaded`],
             ].map(([label, value]) => (
               <div key={label} style={{ display: 'flex', gap: 24, padding: '12px 20px', borderBottom: '1px solid var(--line)' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted-2)', letterSpacing: '0.08em', width: 90, flexShrink: 0, marginTop: 1 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--ink-3)', letterSpacing: '0.08em', width: 90, flexShrink: 0, marginTop: 1 }}>
                   {label}
                 </span>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--bone)', textTransform: 'capitalize' }}>{value}</span>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink)', textTransform: 'capitalize' }}>{value}</span>
               </div>
             ))}
             <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--line)' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted-2)', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--ink-3)', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>
                 Title
               </span>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', color: 'var(--bone)', margin: 0, fontWeight: 500 }}>{form.title}</p>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', color: 'var(--ink)', margin: 0, fontWeight: 500 }}>{form.title}</p>
             </div>
             <div style={{ padding: '12px 20px' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted-2)', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--ink-3)', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>
                 Description
               </span>
-              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.6 }}>{form.description}</p>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink-2)', margin: 0, lineHeight: 1.6 }}>{form.description}</p>
             </div>
           </div>
 

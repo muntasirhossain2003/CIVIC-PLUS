@@ -7,12 +7,12 @@ import { Btn } from '../../components/ui/Btn';
 import { Field } from '../../components/ui/Field';
 
 export function Login() {
-  const navigate = useNavigate();
-  const setUser = useAuthStore((s) => s.setUser);
-  const [email, setEmail] = useState('');
+  const navigate  = useNavigate();
+  const setUser   = useAuthStore((s) => s.setUser);
+  const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error,    setError]    = useState('');
+  const [loading,  setLoading]  = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,36 +39,62 @@ export function Login() {
       justifyContent: 'center',
       padding: '24px',
     }}>
-      <div style={{
-        width: '100%',
-        maxWidth: 400,
-        animation: 'fade-up 0.5s ease both',
-      }}>
+      <div style={{ width: '100%', maxWidth: 420, animation: 'fade-up 0.5s ease both' }}>
+
         {/* Brand */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 16,
+            background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 24px oklch(0.82 0.14 75 / 0.45)',
+            position: 'relative',
+          }}>
+            <span style={{
+              width: 12, height: 12, borderRadius: '50%', background: 'white',
+              animation: 'blink 1.6s ease-in-out infinite',
+            }} />
+          </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '2.2rem',
-            fontWeight: 400,
-            color: 'var(--bone)',
-            margin: '0 0 6px',
+            fontSize: '2rem', fontWeight: 400,
+            color: 'var(--ink)', margin: '0 0 4px',
+            letterSpacing: '-0.015em',
           }}>
-            Civic<em>Pulse</em>
+            Civic<em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>Pulse</em>
           </h1>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.14em' }}>
-            MUNICIPAL ISSUE TRACKER
+          <p style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.65rem', color: 'var(--ink-3)',
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            margin: 0,
+          }}>
+            Municipal Issue Tracker
           </p>
         </div>
 
         {/* Card */}
         <div style={{
-          background: 'var(--ink-2)',
-          border: '1px solid var(--line-2)',
+          background: 'var(--paper)',
           borderRadius: 'var(--radius-card)',
           padding: '32px',
+          boxShadow: 'var(--shadow-card)',
+          border: '1px solid var(--line)',
         }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.14em', margin: '0 0 24px' }}>
-            SIGN IN TO YOUR ACCOUNT
+          <h2 style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '1.1rem', fontWeight: 700,
+            color: 'var(--ink)', margin: '0 0 6px',
+          }}>
+            Welcome back
+          </h2>
+          <p style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.875rem', color: 'var(--ink-3)',
+            margin: '0 0 24px',
+          }}>
+            Sign in to your account to continue
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -90,27 +116,35 @@ export function Login() {
             />
 
             {error && (
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--alert)', margin: 0 }}>
+              <div style={{
+                background: 'oklch(0.64 0.19 25 / 0.08)',
+                border: '1px solid oklch(0.64 0.19 25 / 0.3)',
+                borderRadius: 12,
+                padding: '10px 14px',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.82rem',
+                color: 'var(--alert)',
+              }}>
                 {error}
-              </p>
+              </div>
             )}
 
-            <Btn type="submit" disabled={loading} style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}>
+            <Btn type="submit" disabled={loading} style={{ width: '100%', marginTop: 4 }}>
               {loading ? 'Signing in…' : 'Sign in'}
             </Btn>
           </form>
 
           <div style={{ borderTop: '1px solid var(--line)', marginTop: 24, paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <Link to="/forgot-password" style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.7rem',
-              color: 'var(--muted)', textDecoration: 'none', letterSpacing: '0.08em',
+              fontFamily: 'var(--font-sans)', fontSize: '0.82rem',
+              color: 'var(--ink-2)', textDecoration: 'none',
             }}>
               Forgot password?
             </Link>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted)', margin: 0, letterSpacing: '0.06em' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink-3)', margin: 0 }}>
               No account?{' '}
-              <Link to="/register" style={{ color: 'var(--pulse)', textDecoration: 'none' }}>
-                Create one
+              <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
+                Create one →
               </Link>
             </p>
           </div>

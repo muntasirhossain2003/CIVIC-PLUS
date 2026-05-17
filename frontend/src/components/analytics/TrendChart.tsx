@@ -15,14 +15,14 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
 
   return (
     <div style={{
-      background: 'var(--ink-2)',
-      border: '1px solid var(--line-2)',
+      background: 'var(--paper)',
+      border: '1px solid var(--line)',
       borderRadius: 'var(--radius-card)',
       padding: '24px',
     }}>
       <div style={{ marginBottom: 20 }}>
         <Eyebrow>14-day trend</Eyebrow>
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--bone)', margin: '6px 0 0', fontWeight: 400 }}>
+        <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)', margin: '6px 0 0', fontWeight: 400 }}>
           Reported <em>vs</em> Resolved
         </p>
       </div>
@@ -60,12 +60,12 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           />
           <Tooltip
             contentStyle={{
-              background: 'var(--ink-3)',
-              border: '1px solid var(--line-2)',
+              background: 'rgba(255,255,255,0.5)',
+              border: '1px solid var(--line)',
               borderRadius: 4,
               fontFamily: 'var(--font-mono)',
               fontSize: '0.7rem',
-              color: 'var(--bone)',
+              color: 'var(--ink)',
             }}
             labelFormatter={(v) => fmt(String(v))}
           />
@@ -99,14 +99,14 @@ interface CategoryPoint {
 export function CategoryChart({ data }: { data: CategoryPoint[] }) {
   return (
     <div style={{
-      background: 'var(--ink-2)',
-      border: '1px solid var(--line-2)',
+      background: 'var(--paper)',
+      border: '1px solid var(--line)',
       borderRadius: 'var(--radius-card)',
       padding: '24px',
     }}>
       <div style={{ marginBottom: 20 }}>
         <Eyebrow>By category</Eyebrow>
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--bone)', margin: '6px 0 0', fontWeight: 400 }}>
+        <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.3rem', color: 'var(--ink)', margin: '6px 0 0', fontWeight: 400 }}>
           Issue <em>distribution</em>
         </p>
       </div>
@@ -116,14 +116,14 @@ export function CategoryChart({ data }: { data: CategoryPoint[] }) {
           return (
             <div key={d._id}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: 'var(--bone)', textTransform: 'capitalize' }}>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: 'var(--ink)', textTransform: 'capitalize' }}>
                   {d._id}
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--muted)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--ink-2)' }}>
                   {d.count} · {pct}% resolved
                 </span>
               </div>
-              <div style={{ height: 4, background: 'var(--ink-3)', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ height: 4, background: 'rgba(255,255,255,0.5)', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: `${pct}%`,
