@@ -9,7 +9,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: 'dark',
+      theme: 'light',
       toggle: () => set({ theme: get().theme === 'dark' ? 'light' : 'dark' }),
     }),
     { name: 'civicpulse-theme' },

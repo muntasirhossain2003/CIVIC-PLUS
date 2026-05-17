@@ -61,7 +61,7 @@ export function StatusTimeline({ history, current }: Props) {
           top: 12,
           bottom: 12,
           width: 1,
-          background: 'var(--line-2)',
+          background: 'var(--line)',
         }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -78,12 +78,12 @@ export function StatusTimeline({ history, current }: Props) {
                   <div style={{
                     width: 20, height: 20,
                     borderRadius: '50%',
-                    background: isPending ? 'var(--ink-3)' : color,
+                    background: isPending ? 'var(--line)' : color,
                     border: `1.5px solid ${isPending ? 'var(--line-2)' : color}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {!isPending && (
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ink)' }} />
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'white' }} />
                     )}
                   </div>
 
@@ -115,7 +115,7 @@ export function StatusTimeline({ history, current }: Props) {
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.68rem',
                       letterSpacing: '0.12em',
-                      color: isPending ? 'var(--muted-2)' : color,
+                      color: isPending ? 'var(--ink-3)' : color,
                       fontWeight: isCurrent ? 600 : 400,
                     }}>
                       {statusLabels[status]}

@@ -65,7 +65,7 @@ export function StatCard({ eyebrow, value, unit, sub, color }: Stat & { color?: 
       <div style={{
         fontFamily: 'var(--font-display)',
         fontSize: '2.4rem',
-        color: color ?? 'var(--bone)',
+        color: color ?? 'var(--ink)',
         lineHeight: 1,
         margin: '8px 0 4px',
         fontWeight: 400,

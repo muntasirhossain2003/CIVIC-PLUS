@@ -45,7 +45,7 @@ export function SLABar({ slaDeadline, createdAt, status }: Props) {
         </span>
       </div>
 
-      <div style={{ height: 6, background: 'rgba(255,255,255,0.5)', borderRadius: 3, overflow: 'hidden' }}>
+      <div style={{ height: 6, background: 'var(--line)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{
           height: '100%',
           width: `${pct}%`,
