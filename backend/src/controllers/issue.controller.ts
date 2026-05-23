@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { issueService } from '../services/issue.service';
 import { AuthRequest } from '../types/index.d';
 import { listIssuesSchema, nearbySchema } from '../schemas/issue.schema';
+import { emitIssueNew, emitStatusChanged } from '../socket/events';
 
 function handleError(res: Response, err: unknown) {
   const e = err as Error & { status?: number };
@@ -38,6 +39,7 @@ export const issueController = {
   async create(req: AuthRequest, res: Response) {
     try {
       const issue = await issueService.create(req.body, req.user!.id);
+      emitIssueNew(issue);
       res.status(201).json(issue);
     } catch (err) { handleError(res, err); }
   },
@@ -59,6 +61,7 @@ export const issueController = {
   async updateStatus(req: AuthRequest, res: Response) {
     try {
       const issue = await issueService.updateStatus(req.params.id, req.body, req.user!.id);
+      emitStatusChanged(String(issue._id), issue.status as string);
       res.json(issue);
     } catch (err) { handleError(res, err); }
   },

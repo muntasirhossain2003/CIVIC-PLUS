@@ -15,6 +15,7 @@ import issueRoutes from './routes/issue.routes';
 import uploadRoutes from './routes/upload.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import adminRoutes from './routes/admin.routes';
+import notificationRoutes from './routes/notification.routes';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -34,6 +35,7 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use((_req, res) => res.status(404).json({ message: 'Route not found' }));
 

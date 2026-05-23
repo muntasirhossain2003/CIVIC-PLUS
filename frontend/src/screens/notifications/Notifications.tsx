@@ -5,6 +5,7 @@ import { useLangStore } from '../../store/langStore';
 import type { Notification } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { Btn } from '../../components/ui/Btn';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { Bell, CheckCheck, ExternalLink } from 'lucide-react';
 
 function fmt(iso: string) {
@@ -24,6 +25,7 @@ export function Notifications() {
   const lang = useLangStore((s) => s.lang);
   const isBn = lang === 'bn';
   const qc   = useQueryClient();
+  const isMobile = useIsMobile();
 
   const { data = [], isLoading } = useQuery<Notification[]>({
     queryKey: ['notifications'],
@@ -43,7 +45,7 @@ export function Notifications() {
   const unread = data.filter((n) => !n.read).length;
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow={isBn ? 'বিজ্ঞপ্তি' : 'Notifications'}
         title={isBn
@@ -100,7 +102,7 @@ export function Notifications() {
             <div
               key={n._id}
               style={{
-                padding: '16px 22px',
+                padding: isMobile ? '14px 16px' : '16px 22px',
                 borderBottom: idx < data.length - 1 ? '1px solid var(--line)' : 'none',
                 background: n.read ? 'transparent' : 'oklch(0.48 0.09 220 / 0.04)',
                 display: 'flex', alignItems: 'flex-start', gap: 14,

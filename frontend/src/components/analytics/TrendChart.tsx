@@ -36,7 +36,8 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
         </span>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <div style={{ overflowX: 'auto', minWidth: 0 }}>
+      <ResponsiveContainer width="100%" height={200} minWidth={280}>
         <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
           <defs>
             <linearGradient id="reportedGrad" x1="0" y1="0" x2="0" y2="1">
@@ -86,6 +87,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           />
         </AreaChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -123,7 +125,7 @@ export function CategoryChart({ data }: { data: CategoryPoint[] }) {
                   {d.count} · {pct}% resolved
                 </span>
               </div>
-              <div style={{ height: 4, background: 'rgba(255,255,255,0.5)', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ height: 4, background: 'var(--line)', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: `${pct}%`,

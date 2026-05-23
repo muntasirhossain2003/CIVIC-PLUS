@@ -13,7 +13,7 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: `repeat(${stats.length}, 1fr)`,
+      gridTemplateColumns: `repeat(auto-fit, minmax(min(140px, 100%), 1fr))`,
       gap: 1,
       background: 'var(--line)',
       border: '1px solid var(--line)',
@@ -23,7 +23,7 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
       {stats.map((s, i) => (
         <div key={i} style={{
           background: 'var(--paper)',
-          padding: '24px 28px',
+          padding: 'clamp(16px, 3vw, 24px) clamp(16px, 4vw, 28px)',
           animation: `fade-up 0.5s ${i * 0.08}s ease both`,
         }}>
           <Eyebrow>{s.eyebrow}</Eyebrow>
