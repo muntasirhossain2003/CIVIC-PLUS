@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../../lib/api';
 import { CanvasHead } from '../../components/layout/CanvasHead';
@@ -10,6 +11,7 @@ interface Department { _id: string; name: string; issueCount?: number; }
 
 export function AdminDepartments() {
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [newName, setNewName]       = useState('');
   const [editId, setEditId]         = useState<string | null>(null);
   const [editName, setEditName]     = useState('');
@@ -30,7 +32,7 @@ export function AdminDepartments() {
   });
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow="Admin · Departments"
         title={<>Municipal <em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>departments</em></>}

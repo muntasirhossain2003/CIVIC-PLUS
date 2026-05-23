@@ -35,7 +35,7 @@ export function Register() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '24px',
+      padding: 'clamp(16px, 5vw, 24px)',
     }}>
       <div style={{ width: '100%', maxWidth: 420, animation: 'fade-up 0.5s ease both' }}>
 
@@ -74,7 +74,7 @@ export function Register() {
         <div style={{
           background: 'var(--paper)',
           borderRadius: 'var(--radius-card)',
-          padding: '32px',
+          padding: 'clamp(20px, 5vw, 32px)',
           boxShadow: 'var(--shadow-card)',
           border: '1px solid var(--line)',
         }}>

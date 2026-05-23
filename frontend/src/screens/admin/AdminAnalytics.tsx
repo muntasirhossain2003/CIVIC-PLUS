@@ -4,6 +4,7 @@ import { CanvasHead } from '../../components/layout/CanvasHead';
 import { StatStrip } from '../../components/analytics/StatStrip';
 import { TrendChart } from '../../components/analytics/TrendChart';
 import { CountUp } from '../../components/ui/CountUp';
+import { useIsMobile } from '../../lib/useIsMobile';
 
 interface AdminStats {
   totalUsers: number;
@@ -24,6 +25,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function AdminAnalytics() {
+  const isMobile = useIsMobile();
   const { data, isLoading } = useQuery<AdminStats>({
     queryKey: ['admin-analytics'],
     queryFn: () => analyticsApi.admin().then((r) => r.data),
@@ -42,7 +44,7 @@ export function AdminAnalytics() {
     : 0;
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow="Admin · Analytics"
         title={<>Platform <em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>overview</em></>}
@@ -56,7 +58,7 @@ export function AdminAnalytics() {
         { eyebrow: 'Avg resolution', value: Math.round(data.avgResolutionHours), sub: 'hours' },
       ]} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginTop: 20 }}>
         {/* Issues by status */}
         <div style={{
           background: 'var(--paper)', borderRadius: 'var(--radius-card)',

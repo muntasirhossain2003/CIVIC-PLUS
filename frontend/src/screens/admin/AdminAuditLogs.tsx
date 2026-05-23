@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '../../lib/api';
 import { CanvasHead } from '../../components/layout/CanvasHead';
@@ -33,6 +34,7 @@ function fmt(iso: string) {
 
 export function AdminAuditLogs() {
   const [page, setPage] = useState(1);
+  const isMobile = useIsMobile();
 
   const { data, isLoading } = useQuery<{ data: AuditLog[]; totalPages: number; total: number }>({
     queryKey: ['audit-logs', page],
@@ -46,7 +48,7 @@ export function AdminAuditLogs() {
     typeof log.actorId === 'object' ? log.actorId.name : log.actorId;
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow="Admin · Audit"
         title={<>Audit <em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>logs</em></>}
@@ -57,36 +59,46 @@ export function AdminAuditLogs() {
         background: 'var(--paper)', borderRadius: 'var(--radius-card)',
         boxShadow: 'var(--shadow-card)', border: '1px solid var(--line)', overflow: 'hidden',
       }}>
-        {/* Header */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'auto 1fr 1fr auto',
-          padding: '12px 22px', background: 'var(--bg)',
-          borderBottom: '1px solid var(--line)',
-        }}>
-          {['Action', 'Actor', 'Target', 'Time'].map((h) => (
-            <span key={h} style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.65rem', fontWeight: 500,
-              color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.1em',
-            }}>
-              {h}
-            </span>
-          ))}
-        </div>
+        {/* Header — desktop only */}
+        {!isMobile && (
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'auto 1fr 1fr auto',
+            padding: '12px 22px', background: 'var(--bg)', borderBottom: '1px solid var(--line)',
+          }}>
+            {['Action', 'Actor', 'Target', 'Time'].map((h) => (
+              <span key={h} style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', fontWeight: 500, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                {h}
+              </span>
+            ))}
+          </div>
+        )}
 
         {isLoading ? (
-          <div style={{ padding: '32px 22px', textAlign: 'center', fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--ink-3)' }}>
-            Loading…
-          </div>
+          <div style={{ padding: '32px 22px', textAlign: 'center', fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--ink-3)' }}>Loading…</div>
         ) : logs.length === 0 ? (
           <div style={{ padding: '56px 22px', textAlign: 'center' }}>
             <ScrollText size={32} style={{ color: 'var(--ink-3)', marginBottom: 12 }} />
-            <p style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink-3)', margin: 0 }}>
-              No audit logs yet.
-            </p>
+            <p style={{ fontFamily: 'var(--font-sans)', color: 'var(--ink-3)', margin: 0 }}>No audit logs yet.</p>
           </div>
         ) : logs.map((log, idx) => {
           const color = ACTION_COLORS[log.action] ?? 'var(--ink-3)';
-          return (
+          return isMobile ? (
+            /* Mobile: stacked card */
+            <div key={log._id} style={{ padding: '12px 16px', borderBottom: idx < logs.length - 1 ? '1px solid var(--line)' : 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, gap: 8 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', fontWeight: 600, color, background: `${color}18`, borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+                  {log.action.replace(/_/g, ' ')}
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>
+                  {fmt(log.createdAt)}
+                </span>
+              </div>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink)', margin: 0 }}>
+                {actorName(log)}
+              </p>
+            </div>
+          ) : (
+            /* Desktop: grid row */
             <div key={log._id} style={{
               display: 'grid', gridTemplateColumns: 'auto 1fr 1fr auto',
               padding: '12px 22px', alignItems: 'center', gap: 16,
@@ -96,16 +108,10 @@ export function AdminAuditLogs() {
               onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'oklch(0.48 0.09 220 / 0.03)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
             >
-              <span style={{
-                fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 600,
-                color, background: `${color}18`, borderRadius: 999,
-                padding: '3px 10px', whiteSpace: 'nowrap',
-              }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 600, color, background: `${color}18`, borderRadius: 999, padding: '3px 10px', whiteSpace: 'nowrap' }}>
                 {log.action.replace(/_/g, ' ')}
               </span>
-              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink)' }}>
-                {actorName(log)}
-              </span>
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--ink)' }}>{actorName(log)}</span>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-3)' }}>
                 {log.targetModel ? `${log.targetModel}:${String(log.targetId ?? '').slice(-6)}` : '—'}
               </span>

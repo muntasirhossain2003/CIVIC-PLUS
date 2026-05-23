@@ -70,7 +70,7 @@ export function VerifyEmail() {
         <div style={{
           background: 'var(--paper)',
           borderRadius: 'var(--radius-card)',
-          padding: '32px',
+          padding: 'clamp(20px, 5vw, 32px)',
           boxShadow: 'var(--shadow-card)',
           border: '1px solid var(--line)',
         }}>

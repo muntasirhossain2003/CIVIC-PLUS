@@ -190,3 +190,54 @@ h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -0.015em; }
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ── Mobile utilities ─────────────────────────────────────── */
+@media (max-width: 767px) {
+  :root {
+    --screen-px: 16px;
+  }
+
+  /* Hide scrollbars on mobile for horizontal scroll areas */
+  .mobile-scroll-x {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .mobile-scroll-x::-webkit-scrollbar { display: none; }
+
+  /* Full-bleed mobile card (no border-radius on sides) */
+  .mobile-full-bleed {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  /* Increase minimum tap targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Safe area padding for bottom nav */
+  .mobile-pb-safe {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  /* Stack grid columns */
+  .mobile-stack {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Two columns on mobile */
+  .mobile-2col {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ── Safe-area fix for all screens on mobile ──────────────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 767px) {
+    main {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}

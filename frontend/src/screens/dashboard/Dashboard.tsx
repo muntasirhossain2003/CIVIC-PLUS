@@ -7,6 +7,7 @@ import type { Issue } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { Btn } from '../../components/ui/Btn';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { Plus, MapPin, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 function fmt(iso: string) {
@@ -17,6 +18,7 @@ export function Dashboard() {
   const user = useAuthStore((s) => s.user);
   const lang = useLangStore((s) => s.lang);
   const isBn = lang === 'bn';
+  const isMobile = useIsMobile();
 
   const { data, isLoading } = useQuery({
     queryKey: ['my-issues'],
@@ -38,7 +40,7 @@ export function Dashboard() {
   ];
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow={isBn ? 'আমার ড্যাশবোর্ড' : 'My Dashboard'}
         title={isBn
@@ -59,9 +61,9 @@ export function Dashboard() {
       {/* Stat strip */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 16,
-        marginBottom: 32,
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+        gap: isMobile ? 10 : 16,
+        marginBottom: isMobile ? 20 : 32,
       }}>
         {stats.map(({ icon: Icon, label, value, color }) => (
           <div key={label} style={{
@@ -160,21 +162,22 @@ export function Dashboard() {
           issues.map((issue, idx) => (
             <Link key={issue._id} to={`/issues/${issue._id}`} style={{ textDecoration: 'none', display: 'block' }}>
               <div style={{
-                padding: '16px 22px',
+                padding: isMobile ? '14px 16px' : '16px 22px',
                 borderBottom: idx < issues.length - 1 ? '1px solid var(--line)' : 'none',
-                display: 'flex', alignItems: 'center', gap: 16,
+                display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', gap: 12,
                 transition: 'background 0.15s',
               }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'oklch(0.48 0.09 220 / 0.04)'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                     <p style={{
                       fontFamily: isBn ? 'var(--font-bangla)' : 'var(--font-sans)',
                       fontSize: '0.875rem', fontWeight: 600,
                       color: 'var(--ink)', margin: 0,
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      flex: 1, minWidth: 0,
                     }}>
                       {issue.title}
                     </p>
@@ -182,25 +185,24 @@ export function Dashboard() {
                   </div>
                   <p style={{
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '0.75rem', color: 'var(--ink-3)',
-                    margin: 0, display: 'flex', alignItems: 'center', gap: 5,
+                    fontSize: '0.72rem', color: 'var(--ink-3)',
+                    margin: 0, display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap',
                   }}>
                     <MapPin size={10} />
-                    {issue.address}
-                    <span style={{ color: 'var(--line-2)', margin: '0 2px' }}>·</span>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: isMobile ? 160 : 'none' }}>{issue.address}</span>
+                    <span style={{ color: 'var(--line-2)' }}>·</span>
                     {fmt(issue.createdAt)}
                   </p>
                 </div>
-                <span style={{
-                  fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-                  color: 'var(--ink-3)',
-                  textTransform: 'uppercase',
-                  background: 'var(--bg)',
-                  padding: '3px 8px', borderRadius: 999,
-                  flexShrink: 0,
-                }}>
-                  {issue.category}
-                </span>
+                {!isMobile && (
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
+                    color: 'var(--ink-3)', textTransform: 'uppercase',
+                    background: 'var(--bg)', padding: '3px 8px', borderRadius: 999, flexShrink: 0,
+                  }}>
+                    {issue.category}
+                  </span>
+                )}
               </div>
             </Link>
           ))

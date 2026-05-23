@@ -8,6 +8,7 @@ import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Field } from '../../components/ui/Field';
 import { Btn } from '../../components/ui/Btn';
 import { StatusPill } from '../../components/ui/StatusPill';
+import { useIsMobile } from '../../lib/useIsMobile';
 import type { Issue } from '../../types';
 import { MapPin, Camera, AlertTriangle, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 
@@ -29,41 +30,43 @@ interface FormState {
 const CATEGORIES = ['pothole', 'streetlight', 'garbage', 'water', 'drainage', 'power', 'other'];
 const SEVERITIES = ['low', 'medium', 'high'];
 
-function StepIndicator({ current }: { current: Step }) {
+function StepIndicator({ current, mobile = false }: { current: Step; mobile?: boolean }) {
   const idx = STEPS.indexOf(current);
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 32 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: mobile ? 20 : 32 }}>
       {STEPS.map((s, i) => (
         <div key={s} style={{ display: 'flex', alignItems: 'center', flex: i < STEPS.length - 1 ? 1 : 'none' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <div style={{
-              width: 28, height: 28,
+              width: mobile ? 32 : 28, height: mobile ? 32 : 28,
               borderRadius: '50%',
-              background: i < idx ? 'var(--civic)' : i === idx ? 'var(--pulse)' : 'var(--ink-3)',
+              background: i < idx ? 'var(--civic)' : i === idx ? 'var(--pulse)' : 'var(--line)',
               border: `1px solid ${i <= idx ? 'transparent' : 'var(--line-2)'}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-              color: i <= idx ? 'var(--ink)' : 'var(--muted-2)',
+              color: i <= idx ? 'var(--ink)' : 'var(--ink-3)',
             }}>
               {i < idx ? <Check size={12} /> : i + 1}
             </div>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.6rem',
-              color: i === idx ? 'var(--pulse)' : 'var(--muted-2)',
-              letterSpacing: '0.08em',
-              whiteSpace: 'nowrap',
-              textTransform: 'uppercase',
-            }}>
-              {STEP_LABELS[s]}
-            </span>
+            {!mobile && (
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.6rem',
+                color: i === idx ? 'var(--pulse)' : 'var(--ink-3)',
+                letterSpacing: '0.08em',
+                whiteSpace: 'nowrap',
+                textTransform: 'uppercase',
+              }}>
+                {STEP_LABELS[s]}
+              </span>
+            )}
           </div>
           {i < STEPS.length - 1 && (
             <div style={{
               height: 1,
               flex: 1,
               background: i < idx ? 'var(--civic)' : 'var(--line-2)',
-              margin: '-14px 8px 0',
+              margin: mobile ? '-2px 6px 0' : '-14px 8px 0',
             }} />
           )}
         </div>
@@ -117,6 +120,7 @@ export function ReportFlow() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const isMobile = useIsMobile();
 
   function set<K extends keyof FormState>(k: K, v: FormState[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -207,13 +211,25 @@ export function ReportFlow() {
   }[step];
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 48px)', maxWidth: 680 }}>
-      <CanvasHead
-        eyebrow="Citizen portal — report"
-        title={<>Submit a <em>civic</em> issue</>}
-      />
+    <div style={{ padding: isMobile ? '16px 16px 120px' : 'clamp(20px, 4vw, 48px)', maxWidth: isMobile ? '100%' : 680 }}>
+      {!isMobile && (
+        <CanvasHead
+          eyebrow="Citizen portal — report"
+          title={<>Submit a <em>civic</em> issue</>}
+        />
+      )}
+      {isMobile && (
+        <div style={{ marginBottom: 20 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--ink-3)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            Report an issue
+          </p>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 400, color: 'var(--ink)', margin: '0 0 4px' }}>
+            {STEP_LABELS[step]}
+          </h1>
+        </div>
+      )}
 
-      <StepIndicator current={step} />
+      <StepIndicator current={step} mobile={isMobile} />
 
       {/* ── Step: Location ── */}
       {step === 'location' && (
@@ -417,29 +433,56 @@ export function ReportFlow() {
       )}
 
       {/* Navigation */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--line)' }}>
-        <Btn
-          variant="ghost"
-          onClick={prev}
-          disabled={step === 'location'}
-          style={{ visibility: step === 'location' ? 'hidden' : 'visible' }}
-        >
-          <ChevronLeft size={14} />
-          Back
-        </Btn>
-
-        {step === 'review' ? (
-          <Btn onClick={handleSubmit} disabled={submitting}>
-            {submitting ? 'Submitting…' : 'Submit issue'}
-            <Check size={14} />
+      {isMobile ? (
+        <div style={{
+          position: 'fixed', bottom: 72, left: 0, right: 0,
+          padding: '12px 16px',
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderTop: '1px solid var(--line)',
+          display: 'flex', justifyContent: 'space-between', gap: 12,
+          zIndex: 50,
+        }}>
+          <Btn
+            variant="ghost"
+            onClick={prev}
+            disabled={step === 'location'}
+            style={{ visibility: step === 'location' ? 'hidden' : 'visible', flex: 1 }}
+          >
+            <ChevronLeft size={14} /> Back
           </Btn>
-        ) : (
-          <Btn onClick={next} disabled={!canNext}>
-            Next
-            <ChevronRight size={14} />
+          {step === 'review' ? (
+            <Btn onClick={handleSubmit} disabled={submitting} style={{ flex: 2 }}>
+              {submitting ? 'Submitting…' : 'Submit issue'} <Check size={14} />
+            </Btn>
+          ) : (
+            <Btn onClick={next} disabled={!canNext} style={{ flex: 2 }}>
+              Next <ChevronRight size={14} />
+            </Btn>
+          )}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32, paddingTop: 20, borderTop: '1px solid var(--line)' }}>
+          <Btn
+            variant="ghost"
+            onClick={prev}
+            disabled={step === 'location'}
+            style={{ visibility: step === 'location' ? 'hidden' : 'visible' }}
+          >
+            <ChevronLeft size={14} /> Back
           </Btn>
-        )}
-      </div>
+          {step === 'review' ? (
+            <Btn onClick={handleSubmit} disabled={submitting}>
+              {submitting ? 'Submitting…' : 'Submit issue'} <Check size={14} />
+            </Btn>
+          ) : (
+            <Btn onClick={next} disabled={!canNext}>
+              Next <ChevronRight size={14} />
+            </Btn>
+          )}
+        </div>
+      )}
     </div>
   );
 }

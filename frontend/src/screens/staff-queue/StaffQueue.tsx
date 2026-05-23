@@ -8,6 +8,7 @@ import { CanvasHead } from '../../components/layout/CanvasHead';
 import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Btn } from '../../components/ui/Btn';
 import { SLABar } from '../../components/timeline/SLABar';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { MapPin, Clock } from 'lucide-react';
 
 const COLUMNS: { status: IssueStatus; label: string }[] = [
@@ -257,6 +258,8 @@ function IssueCard({ issue, onUpdateStatus }: { issue: Issue; onUpdateStatus: (i
 export function StaffQueue() {
   const [modalIssue, setModalIssue] = useState<Issue | null>(null);
   const [search, setSearch] = useState('');
+  const [mobileStatus, setMobileStatus] = useState<IssueStatus>('submitted');
+  const isMobile = useIsMobile();
 
   const { data, isLoading } = useQuery({
     queryKey: ['staff-issues', search],
@@ -277,7 +280,7 @@ export function StaffQueue() {
         <StatusModal issue={modalIssue} onClose={() => setModalIssue(null)} />
       )}
 
-      <div style={{ padding: 'clamp(20px, 4vw, 48px)' }}>
+      <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(20px, 4vw, 48px)' }}>
         <CanvasHead
           eyebrow="Staff portal"
           title={<>Issue <em>triage</em> queue</>}
@@ -285,7 +288,7 @@ export function StaffQueue() {
         />
 
         {/* Search */}
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 16 }}>
           <input
             type="text"
             value={search}
@@ -300,61 +303,89 @@ export function StaffQueue() {
               fontSize: '0.875rem',
               padding: '9px 14px',
               width: '100%',
-              maxWidth: 360,
+              maxWidth: isMobile ? '100%' : 360,
               outline: 'none',
             }}
           />
         </div>
 
+        {/* Mobile: status tab picker */}
+        {isMobile && (
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 16, paddingBottom: 4 }}>
+            {COLUMNS.map(({ status, label }) => {
+              const active = mobileStatus === status;
+              const color = statusColors[status];
+              const count = byStatus(status).length;
+              return (
+                <button
+                  key={status}
+                  onClick={() => setMobileStatus(status)}
+                  style={{
+                    flexShrink: 0,
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '7px 14px',
+                    borderRadius: 999,
+                    border: `1.5px solid ${active ? color : 'var(--line)'}`,
+                    background: active ? `${color}1A` : 'rgba(255,255,255,0.7)',
+                    color: active ? color : 'var(--ink-3)',
+                    fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
+                    fontWeight: 600, letterSpacing: '0.06em', cursor: 'pointer',
+                  }}
+                >
+                  {label}
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', background: active ? color : 'var(--line)', color: active ? 'var(--ink)' : 'var(--ink-3)', borderRadius: 10, padding: '1px 6px' }}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {isLoading ? (
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-2)' }}>Loading queue…</p>
+        ) : isMobile ? (
+          /* Mobile: single column for selected status */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {byStatus(mobileStatus).length === 0 ? (
+              <div style={{ padding: '40px 16px', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--ink-3)', border: '1px dashed var(--line)', borderRadius: 'var(--radius-card)' }}>
+                No issues in this column
+              </div>
+            ) : (
+              byStatus(mobileStatus).map((issue) => (
+                <IssueCard key={issue._id} issue={issue} onUpdateStatus={setModalIssue} />
+              ))
+            )}
+          </div>
         ) : (
+          /* Desktop: 4-column kanban */
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, alignItems: 'start' }}>
             {COLUMNS.map(({ status, label }) => {
               const cards = byStatus(status);
               const color = statusColors[status];
               return (
                 <div key={status}>
-                  {/* Column header */}
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '10px 12px',
-                    background: 'var(--paper)',
-                    border: `1px solid ${color}`,
-                    borderRadius: 'var(--radius-card)',
-                    marginBottom: 10,
-                    borderBottom: `3px solid ${color}`,
+                    padding: '10px 12px', background: 'var(--paper)',
+                    border: `1px solid ${color}`, borderRadius: 'var(--radius-card)',
+                    marginBottom: 10, borderBottom: `3px solid ${color}`,
                   }}>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color, letterSpacing: '0.1em' }}>
                       {label}
                     </span>
-                    <span style={{
-                      fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-                      background: color, color: 'var(--ink)',
-                      borderRadius: 10, padding: '1px 7px', fontWeight: 600,
-                    }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', background: color, color: 'var(--ink)', borderRadius: 10, padding: '1px 7px', fontWeight: 600 }}>
                       {cards.length}
                     </span>
                   </div>
-
-                  {/* Cards */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {cards.length === 0 ? (
-                      <div style={{
-                        padding: '20px 12px',
-                        fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-                        color: 'var(--ink-3)', textAlign: 'center',
-                        border: '1px dashed var(--line)', borderRadius: 'var(--radius-card)',
-                      }}>
+                      <div style={{ padding: '20px 12px', fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--ink-3)', textAlign: 'center', border: '1px dashed var(--line)', borderRadius: 'var(--radius-card)' }}>
                         No issues
                       </div>
                     ) : (
                       cards.map((issue) => (
-                        <IssueCard
-                          key={issue._id}
-                          issue={issue}
-                          onUpdateStatus={setModalIssue}
-                        />
+                        <IssueCard key={issue._id} issue={issue} onUpdateStatus={setModalIssue} />
                       ))
                     )}
                   </div>

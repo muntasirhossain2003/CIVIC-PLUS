@@ -5,6 +5,7 @@ import { StatStrip } from '../../components/analytics/StatStrip';
 import { TrendChart, CategoryChart } from '../../components/analytics/TrendChart';
 import { Eyebrow } from '../../components/ui/Eyebrow';
 import { StatusPill } from '../../components/ui/StatusPill';
+import { useIsMobile } from '../../lib/useIsMobile';
 
 interface PublicStats {
   total: number;
@@ -16,6 +17,7 @@ interface PublicStats {
 }
 
 export function Transparency() {
+  const isMobile = useIsMobile();
   const { data, isLoading, error } = useQuery<PublicStats>({
     queryKey: ['analytics', 'public'],
     queryFn: () => analyticsApi.public().then((r) => r.data),
@@ -40,7 +42,7 @@ export function Transparency() {
   const resolutionRate = data.total ? Math.round((data.resolved / data.total) * 100) : 0;
 
   return (
-    <div style={{ padding: 'clamp(20px, 4vw, 48px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(20px, 4vw, 48px)' }}>
       <CanvasHead
         eyebrow="Public transparency ledger"
         title={<>Live <em>performance</em> data</>}
@@ -63,7 +65,7 @@ export function Transparency() {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <TrendChart data={data.recentTrend} />
         <CategoryChart data={data.byCategory} />
       </div>

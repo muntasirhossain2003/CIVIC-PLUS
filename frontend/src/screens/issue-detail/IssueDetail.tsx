@@ -11,6 +11,7 @@ import { Btn } from '../../components/ui/Btn';
 import { Field } from '../../components/ui/Field';
 import { StatusTimeline } from '../../components/timeline/StatusTimeline';
 import { SLABar } from '../../components/timeline/SLABar';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { ThumbsUp, Bell, MapPin, Calendar, User } from 'lucide-react';
 
 function fmt(iso: string) {
@@ -22,6 +23,7 @@ function fmt(iso: string) {
 export function IssueDetail() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
 
   const [comment, setComment] = useState('');
@@ -63,12 +65,12 @@ export function IssueDetail() {
   }
 
   if (isLoading) {
-    return <div style={{ padding: 48, fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--ink-3)' }}>Loading…</div>;
+    return <div style={{ padding: 'clamp(20px, 5vw, 48px)', fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--ink-3)' }}>Loading…</div>;
   }
 
   if (error || !issue) {
     return (
-      <div style={{ padding: 48 }}>
+      <div style={{ padding: 'clamp(20px, 5vw, 48px)' }}>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--alert)' }}>Issue not found.</p>
         <Link to="/" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.82rem', color: 'var(--primary)' }}>← Back to map</Link>
       </div>
@@ -76,14 +78,14 @@ export function IssueDetail() {
   }
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow={`${issue.category} · ${issue.severity} severity`}
         title={<><em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>{issue.title.split(' ')[0]}</em> {issue.title.split(' ').slice(1).join(' ')}</>}
         subtitle={`Reported ${fmt(issue.createdAt)}`}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 24, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 300px', gap: isMobile ? 16 : 24, alignItems: 'start' }}>
         {/* Main column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useIsMobile } from '../../lib/useIsMobile';
 import { adminApi } from '../../lib/api';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { Tag } from 'lucide-react';
@@ -24,6 +25,7 @@ const CAT_BG: Record<string, string> = {
 
 export function AdminCategories() {
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const { data = [], isLoading } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: () => adminApi.listCategories().then((r) => r.data),
@@ -35,7 +37,7 @@ export function AdminCategories() {
   });
 
   return (
-    <div style={{ padding: 'clamp(24px, 4vw, 40px)' }}>
+    <div style={{ padding: isMobile ? '16px 16px 80px' : 'clamp(24px, 4vw, 40px)' }}>
       <CanvasHead
         eyebrow="Admin · Categories"
         title={<>Issue <em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>categories</em></>}
