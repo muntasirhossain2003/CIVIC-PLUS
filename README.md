@@ -37,8 +37,10 @@ The interface uses the **Sunny Civic** design system: warm cream canvas, Caprasi
 - **Report flow** — 4-step wizard: GPS location → issue details → photo upload → review
 - **Duplicate detection** — nearby issues within 50 m / 30 days surfaced before submit
 - **Issue detail** — status timeline, SLA countdown bar, upvote, follow, comments
+- **Edit / delete own reports** — within a 1-hour window while still `submitted`
 - **My Dashboard** — personal stats, full history of submitted reports
-- **Notifications** — in-app alert feed, mark-all-read
+- **Profile** — edit name/phone, toggle email & in-app notification preferences
+- **Notifications** — persisted alert feed, live Socket.io badge, mark-all-read
 
 ### Public Portal
 - **Transparency dashboard** — platform-wide stats: CountUp roll-up, 14-day trend chart, category heat map
@@ -49,9 +51,11 @@ The interface uses the **Sunny Civic** design system: warm cream canvas, Caprasi
 
 ### Admin Portal
 - **Analytics** — user count, resolution rate, issues by status/category, trend chart
+- **Issue assignment** — route a report to a department and a specific staff member; auto-acknowledges submitted issues and notifies the assignee
+- **CSV export** — download issue data filtered by status/category for reporting
 - **User management** — search, filter by role, promote citizens to staff
 - **Departments** — create, rename municipal departments
-- **Categories** — view all issue categories with counts
+- **Categories** — view issue categories and their SLA targets (hours-to-resolve)
 - **Audit logs** — paginated event log with actor, target, and timestamp
 
 ### Internationalisation
@@ -95,8 +99,9 @@ CIVIC-PLUS/
 │   │   │   ├── dashboard/      # Citizen personal dashboard
 │   │   │   ├── issue-detail/   # Full issue view with timeline
 │   │   │   ├── notifications/  # Notification feed
+│   │   │   ├── profile/        # Account settings + notification prefs
 │   │   │   ├── report-flow/    # 4-step report wizard
-│   │   │   ├── staff-queue/    # Kanban board
+│   │   │   ├── staff-queue/    # Kanban board + department/staff assignment
 │   │   │   ├── transparency/   # Public analytics
 │   │   │   └── admin/          # Analytics, Users, Departments, Categories, Audit
 │   │   ├── store/              # Zustand stores (auth, theme, lang, notif, filter)
@@ -104,12 +109,12 @@ CIVIC-PLUS/
 │   └── package.json
 │
 ├── docs/
+│   ├── CivicPulse_SRS_v1.0.docx    # Software requirements specification
 │   ├── CivicPulse Web_V2.html      # Design prototype (web)
 │   ├── CivicPulse Friendly_mobile_v2.html  # Design prototype (mobile)
 │   └── graph.html              # Interactive architecture diagram
 │
-├── docker-compose.yml
-└── CLAUDE.md                   # Full project handoff for AI agents
+└── docker-compose.yml
 ```
 
 ---
@@ -234,21 +239,36 @@ All endpoints under `/api`. JWT in `Authorization: Bearer …` header.
 | `POST` | `/auth/logout` | — | Clear cookies |
 | `POST` | `/auth/forgot-password` | — | Send reset code via Cognito |
 | `POST` | `/auth/reset-password` | — | Confirm reset code + new password |
+| `GET` | `/auth/me` | citizen+ | Current user profile |
+| `PATCH` | `/auth/me` | citizen+ | Update name, phone, notification prefs |
 | `GET` | `/issues` | — | List issues (filter by status/category) |
 | `GET` | `/issues/nearby` | — | Issues within radius for dup detection |
 | `GET` | `/issues/:id` | — | Single issue with status history |
+| `GET` | `/issues/:id/comments` | — | List comments on an issue |
 | `POST` | `/issues` | citizen | Submit new issue |
+| `PATCH` | `/issues/:id` | citizen | Edit own report (1 hr window, submitted only) |
+| `DELETE` | `/issues/:id` | citizen | Delete own report (1 hr window) or any (admin) |
 | `PATCH` | `/issues/:id/status` | staff | Update status with note |
+| `PATCH` | `/issues/:id/assign` | staff | Assign to department / staff member |
 | `POST` | `/issues/:id/upvote` | citizen | Idempotent upvote |
 | `POST` | `/issues/:id/follow` | citizen | Subscribe to updates |
 | `POST` | `/issues/:id/comments` | citizen | Add comment (500 char) |
 | `POST` | `/uploads/presigned-url` | citizen | Get S3 upload URL |
 | `GET` | `/analytics/public` | — | Public platform stats |
 | `GET` | `/analytics/admin` | admin | Detailed admin stats |
-| `GET` | `/admin/users` | admin | List + filter users |
-| `PATCH` | `/admin/users/:id` | admin | Update role |
+| `GET` | `/notifications` | citizen+ | List own notifications |
+| `GET` | `/notifications/unread-count` | citizen+ | Unread count for the bell badge |
+| `PATCH` | `/notifications/read-all` | citizen+ | Mark all as read |
+| `PATCH` | `/notifications/:id/read` | citizen+ | Mark one as read |
+| `GET` | `/admin/users` | admin | List + filter users (search, role, department) |
+| `PATCH` | `/admin/users/:id` | admin | Update role / department |
 | `GET` | `/admin/departments` | admin | List departments |
 | `POST` | `/admin/departments` | admin | Create department |
+| `PATCH` | `/admin/departments/:id` | admin | Rename department |
+| `GET` | `/admin/categories` | admin | List categories + SLA targets |
+| `POST` | `/admin/categories` | admin | Create category |
+| `PATCH` | `/admin/categories/:id` | admin | Update category / SLA hours |
+| `GET` | `/admin/issues/export` | admin | Download issues as CSV (status/category filter) |
 | `GET` | `/admin/audit-logs` | admin | Paginated audit trail |
 
 ### Socket.io events
@@ -257,6 +277,7 @@ All endpoints under `/api`. JWT in `Authorization: Bearer …` header.
 |-------|---------|-------------|
 | `issue:new` | `Issue` | New issue submitted |
 | `issue:status_changed` | `{ issueId, status }` | Status update |
+| `join:user` | `userId` (client → server) | Joins the caller's private notification room |
 | `notification` | `Notification` | User-specific alert |
 
 ---
