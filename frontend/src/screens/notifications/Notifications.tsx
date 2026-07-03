@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { api } from '../../lib/api';
+import { api, notificationApi } from '../../lib/api';
 import { useLangStore } from '../../store/langStore';
+import { useNotifStore } from '../../store/notifStore';
 import type { Notification } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { Btn } from '../../components/ui/Btn';
@@ -32,14 +33,18 @@ export function Notifications() {
     queryFn: () => api.get('/notifications').then((r) => r.data),
   });
 
+  function syncUnreadBadge() {
+    notificationApi.unreadCount().then((r) => useNotifStore.setState({ unreadCount: r.data.count }));
+  }
+
   const markAllMut = useMutation({
     mutationFn: () => api.patch('/notifications/read-all'),
-    onSuccess:  () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess:  () => { qc.invalidateQueries({ queryKey: ['notifications'] }); syncUnreadBadge(); },
   });
 
   const markOneMut = useMutation({
     mutationFn: (id: string) => api.patch(`/notifications/${id}/read`),
-    onSuccess:  () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess:  () => { qc.invalidateQueries({ queryKey: ['notifications'] }); syncUnreadBadge(); },
   });
 
   const unread = data.filter((n) => !n.read).length;

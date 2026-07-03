@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useIsMobile } from '../../lib/useIsMobile';
 import { adminApi } from '../../lib/api';
 import { CanvasHead } from '../../components/layout/CanvasHead';
@@ -24,16 +24,10 @@ const CAT_BG: Record<string, string> = {
 };
 
 export function AdminCategories() {
-  const qc = useQueryClient();
   const isMobile = useIsMobile();
   const { data = [], isLoading } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: () => adminApi.listCategories().then((r) => r.data),
-  });
-
-  const toggleMut = useMutation({
-    mutationFn: (id: string) => adminApi.updateCategory(id, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['categories'] }),
   });
 
   return (

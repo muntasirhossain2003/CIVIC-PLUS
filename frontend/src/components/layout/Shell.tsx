@@ -3,9 +3,11 @@ import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { MobileNav } from './MobileNav';
 import { useIsMobile } from '../../lib/useIsMobile';
+import { useNotificationSocket } from '../../lib/useNotificationSocket';
 
 export function Shell({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile();
+  useNotificationSocket();
 
   if (isMobile) {
     return (

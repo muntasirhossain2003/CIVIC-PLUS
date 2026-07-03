@@ -4,7 +4,6 @@ import { adminApi } from '../../lib/api';
 import type { User, UserRole } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { RolePill } from '../../components/ui/RolePill';
-import { Btn } from '../../components/ui/Btn';
 import { useIsMobile } from '../../lib/useIsMobile';
 import { Search, UserCheck } from 'lucide-react';
 

@@ -15,7 +15,7 @@ const TAB_H = 72;
 
 export function MobileNav() {
   const { user, clearUser } = useAuthStore();
-  const unread = useNotifStore((s) => s.unread);
+  const unread = useNotifStore((s) => s.unreadCount);
   const { lang, toggle: toggleLang } = useLangStore();
   const navigate = useNavigate();
   const t = useT();

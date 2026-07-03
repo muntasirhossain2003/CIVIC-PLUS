@@ -3,6 +3,7 @@ import { Comment } from '../models/Comment.model';
 import { Upvote } from '../models/Upvote.model';
 import { Follow } from '../models/Follow.model';
 import { Category } from '../models/Category.model';
+import { Notification, NotificationType } from '../models/Notification.model';
 import {
   CreateIssueInput, UpdateIssueInput, UpdateStatusInput,
   ListIssuesInput, NearbyInput, AddCommentInput, AssignIssueInput,
@@ -11,6 +12,13 @@ import { emitIssueNew, emitStatusChanged, emitNotification } from '../socket/eve
 
 function fail(message: string, status: number): never {
   throw Object.assign(new Error(message), { status });
+}
+
+// Persist the notification so it survives page reloads / offline users,
+// then push it live to anyone connected right now.
+async function notifyUser(userId: string, issueId: string, type: NotificationType, message: string) {
+  const notif = await Notification.create({ userId, issueId, type, message });
+  emitNotification(userId, notif.toObject());
 }
 
 export const issueService = {
@@ -150,14 +158,10 @@ export const issueService = {
     // Broadcast to all clients and notify every follower
     emitStatusChanged(id, input.status);
     const followers = await Follow.find({ issueId: id }).lean();
-    for (const f of followers) {
-      emitNotification(f.userId.toString(), {
-        type: 'status_changed',
-        issueId: id,
-        issueTitle: issue.title,
-        newStatus: input.status,
-      });
-    }
+    const statusLabel = input.status.replace('_', ' ');
+    await Promise.all(followers.map((f) =>
+      notifyUser(f.userId.toString(), id, 'status_change', `"${issue.title}" is now ${statusLabel}`),
+    ));
 
     return issue;
   },
@@ -179,11 +183,7 @@ export const issueService = {
     await issue.save();
 
     if (input.staffId) {
-      emitNotification(input.staffId, {
-        type: 'issue_assigned',
-        issueId: id,
-        issueTitle: issue.title,
-      });
+      await notifyUser(input.staffId, id, 'assigned', `You've been assigned to "${issue.title}"`);
     }
 
     return issue.populate(['assignedDepartmentId', 'assignedStaffId']);

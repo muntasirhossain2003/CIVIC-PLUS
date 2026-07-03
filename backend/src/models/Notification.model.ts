@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
-export type NotificationType = 'status_change' | 'comment' | 'acknowledged' | 'resolved' | 'rejected';
+export type NotificationType = 'status_change' | 'comment' | 'assigned';
 
 export interface INotification extends Document {
   userId: Types.ObjectId;
@@ -15,7 +15,7 @@ const notificationSchema = new Schema<INotification>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     issueId: { type: Schema.Types.ObjectId, ref: 'Issue', required: true },
-    type: { type: String, enum: ['status_change', 'comment', 'acknowledged', 'resolved', 'rejected'], required: true },
+    type: { type: String, enum: ['status_change', 'comment', 'assigned'], required: true },
     message: { type: String, required: true },
     read: { type: Boolean, default: false },
   },

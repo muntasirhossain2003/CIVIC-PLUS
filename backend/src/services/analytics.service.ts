@@ -98,10 +98,10 @@ export const analyticsService = {
       ]),
     ]);
 
-    // Reshape aggregation arrays into the maps/keys the admin dashboard UI consumes
+    // Reshape aggregation arrays into the maps the admin dashboard UI consumes.
+    // recentTrend/byCategory (from publicData) already use the { _id, ... } shape TrendChart/CategoryChart expect.
     const issuesByStatus = Object.fromEntries(byStatus.map((s) => [s._id, s.count]));
     const issuesByCategory = Object.fromEntries(publicData.byCategory.map((c) => [c._id, c.count]));
-    const trend = publicData.recentTrend.map((t) => ({ date: t._id, reported: t.reported, resolved: t.resolved }));
 
     return {
       ...publicData,
@@ -110,7 +110,6 @@ export const analyticsService = {
       resolvedIssues: publicData.resolved,
       issuesByStatus,
       issuesByCategory,
-      trend,
       overdueCount,
       byStatus,
       byDepartment,

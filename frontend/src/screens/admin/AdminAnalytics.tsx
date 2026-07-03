@@ -1,10 +1,16 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { analyticsApi } from '../../lib/api';
+import { analyticsApi, adminApi } from '../../lib/api';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { StatStrip } from '../../components/analytics/StatStrip';
 import { TrendChart } from '../../components/analytics/TrendChart';
 import { CountUp } from '../../components/ui/CountUp';
+import { Btn } from '../../components/ui/Btn';
 import { useIsMobile } from '../../lib/useIsMobile';
+import { Download } from 'lucide-react';
+
+const EXPORT_STATUSES = ['submitted', 'acknowledged', 'in_progress', 'resolved', 'rejected'];
+const EXPORT_CATEGORIES = ['pothole', 'streetlight', 'garbage', 'water', 'drainage', 'power', 'other'];
 
 interface AdminStats {
   totalUsers: number;
@@ -13,7 +19,7 @@ interface AdminStats {
   avgResolutionHours: number;
   issuesByStatus: Record<string, number>;
   issuesByCategory: Record<string, number>;
-  trend: { date: string; reported: number; resolved: number }[];
+  recentTrend: { _id: string; reported: number; resolved: number }[];
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -26,10 +32,34 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function AdminAnalytics() {
   const isMobile = useIsMobile();
+  const [exportStatus, setExportStatus] = useState('');
+  const [exportCategory, setExportCategory] = useState('');
+  const [exporting, setExporting] = useState(false);
+
   const { data, isLoading } = useQuery<AdminStats>({
     queryKey: ['admin-analytics'],
     queryFn: () => analyticsApi.admin().then((r) => r.data),
   });
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const res = await adminApi.exportIssues({
+        status: exportStatus || undefined,
+        category: exportCategory || undefined,
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `civicpulse-issues-${Date.now()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   if (isLoading || !data) {
     return (
@@ -50,6 +80,43 @@ export function AdminAnalytics() {
         title={<>Platform <em style={{ fontStyle: 'italic', color: 'var(--primary)' }}>overview</em></>}
         subtitle="Real-time platform-wide statistics"
       />
+
+      {/* Export controls */}
+      <div style={{
+        display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center',
+        marginBottom: 20, padding: '14px 18px',
+        background: 'var(--paper)', borderRadius: 'var(--radius-card)',
+        border: '1px solid var(--line)', boxShadow: 'var(--shadow-sm)',
+      }}>
+        <select
+          value={exportStatus}
+          onChange={(e) => setExportStatus(e.target.value)}
+          style={{
+            background: 'rgba(255,255,255,0.7)', border: '1px solid var(--line)', borderRadius: 999,
+            color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', padding: '7px 12px', outline: 'none',
+          }}
+        >
+          <option value="">All statuses</option>
+          {EXPORT_STATUSES.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+        </select>
+
+        <select
+          value={exportCategory}
+          onChange={(e) => setExportCategory(e.target.value)}
+          style={{
+            background: 'rgba(255,255,255,0.7)', border: '1px solid var(--line)', borderRadius: 999,
+            color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', padding: '7px 12px', outline: 'none',
+          }}
+        >
+          <option value="">All categories</option>
+          {EXPORT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+
+        <Btn variant="ghost" size="sm" disabled={exporting} onClick={handleExport}>
+          <Download size={14} />
+          {exporting ? 'Exporting…' : 'Export CSV'}
+        </Btn>
+      </div>
 
       <StatStrip stats={[
         { eyebrow: 'Total users',    value: data.totalUsers,         sub: 'registered accounts' },
@@ -127,7 +194,7 @@ export function AdminAnalytics() {
       </div>
 
       {/* Trend chart */}
-      {data.trend?.length > 0 && (
+      {data.recentTrend?.length > 0 && (
         <div style={{
           background: 'var(--paper)', borderRadius: 'var(--radius-card)',
           padding: '22px', boxShadow: 'var(--shadow-card)', border: '1px solid var(--line)',
@@ -136,7 +203,7 @@ export function AdminAnalytics() {
           <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', fontWeight: 700, color: 'var(--ink)', margin: '0 0 20px' }}>
             14-day trend
           </h3>
-          <TrendChart data={data.trend} />
+          <TrendChart data={data.recentTrend} />
         </div>
       )}
     </div>

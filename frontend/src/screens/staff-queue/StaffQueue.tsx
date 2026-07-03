@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { issueApi } from '../../lib/api';
+import { issueApi, adminApi } from '../../lib/api';
+import { useAuthStore } from '../../store/authStore';
 
-import type { Issue, IssueStatus } from '../../types';
+import type { Issue, IssueStatus, User } from '../../types';
 import { CanvasHead } from '../../components/layout/CanvasHead';
 import { Eyebrow } from '../../components/ui/Eyebrow';
 import { Btn } from '../../components/ui/Btn';
 import { SLABar } from '../../components/timeline/SLABar';
 import { useIsMobile } from '../../lib/useIsMobile';
 import { MapPin, Clock } from 'lucide-react';
+
+interface Department { _id: string; name: string }
 
 const COLUMNS: { status: IssueStatus; label: string }[] = [
   { status: 'submitted',    label: 'SUBMITTED' },
@@ -47,12 +50,31 @@ interface StatusModalProps {
 
 function StatusModal({ issue, onClose }: StatusModalProps) {
   const qc = useQueryClient();
+  const currentUser = useAuthStore((s) => s.user);
+  const isAdmin = currentUser?.role === 'admin';
   const [status, setStatus] = useState<IssueStatus>(issue.status);
   const [note, setNote] = useState('');
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [departmentId, setDepartmentId] = useState(issue.assignedDepartmentId ?? '');
+  const [staffId, setStaffId] = useState(issue.assignedStaffId ?? '');
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignError, setAssignError] = useState('');
+
+  const { data: departments } = useQuery<Department[]>({
+    queryKey: ['admin-departments'],
+    queryFn: () => adminApi.listDepartments().then((r) => r.data),
+    enabled: isAdmin,
+  });
+
+  const { data: staffData } = useQuery<{ data: User[] }>({
+    queryKey: ['admin-staff', departmentId],
+    queryFn: () => adminApi.listUsers({ role: 'staff', departmentId }).then((r) => r.data),
+    enabled: isAdmin && !!departmentId,
+  });
 
   const allStatuses: IssueStatus[] = ['submitted', 'acknowledged', 'in_progress', 'resolved', 'rejected'];
 
@@ -73,6 +95,21 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
       setError(e.response?.data?.message ?? 'Update failed.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleAssign() {
+    setAssignError('');
+    setAssignLoading(true);
+    try {
+      await issueApi.assign(issue._id, { departmentId: departmentId || undefined, staffId: staffId || undefined });
+      qc.invalidateQueries({ queryKey: ['staff-issues'] });
+      onClose();
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setAssignError(e.response?.data?.message ?? 'Assignment failed.');
+    } finally {
+      setAssignLoading(false);
     }
   }
 
@@ -184,6 +221,49 @@ function StatusModal({ issue, onClose }: StatusModalProps) {
             {loading ? 'Saving…' : 'Save'}
           </Btn>
         </div>
+
+        {isAdmin && (
+          <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--line)' }}>
+            <Eyebrow>Assign to department / staff</Eyebrow>
+            <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+              <select
+                value={departmentId}
+                onChange={(e) => { setDepartmentId(e.target.value); setStaffId(''); }}
+                style={{
+                  flex: 1, minWidth: 160, background: 'rgba(255,255,255,0.7)', border: '1px solid var(--line)',
+                  borderRadius: 'var(--radius-card)', color: 'var(--ink)', fontFamily: 'var(--font-sans)',
+                  fontSize: '0.85rem', padding: '9px 12px', outline: 'none',
+                }}
+              >
+                <option value="">No department</option>
+                {departments?.map((d) => (
+                  <option key={d._id} value={d._id}>{d.name}</option>
+                ))}
+              </select>
+
+              <select
+                value={staffId}
+                onChange={(e) => setStaffId(e.target.value)}
+                disabled={!departmentId}
+                style={{
+                  flex: 1, minWidth: 160, background: 'rgba(255,255,255,0.7)', border: '1px solid var(--line)',
+                  borderRadius: 'var(--radius-card)', color: 'var(--ink)', fontFamily: 'var(--font-sans)',
+                  fontSize: '0.85rem', padding: '9px 12px', outline: 'none',
+                }}
+              >
+                <option value="">Unassigned</option>
+                {staffData?.data.map((s) => (
+                  <option key={s._id} value={s._id}>{s.name}</option>
+                ))}
+              </select>
+
+              <Btn variant="ghost" size="sm" disabled={assignLoading} onClick={handleAssign}>
+                {assignLoading ? 'Assigning…' : 'Assign'}
+              </Btn>
+            </div>
+            {assignError && <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--alert)', margin: '10px 0 0' }}>{assignError}</p>}
+          </div>
+        )}
       </div>
     </div>
   );

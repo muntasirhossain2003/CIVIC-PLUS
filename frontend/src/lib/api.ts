@@ -74,6 +74,10 @@ export const uploadApi = {
     api.post('/uploads/presigned-url', { filename, contentType }),
 };
 
+export const notificationApi = {
+  unreadCount: () => api.get('/notifications/unread-count'),
+};
+
 export const adminApi = {
   listUsers:        (params?: Record<string, unknown>) => api.get('/admin/users', { params }),
   updateUser:       (id: string, data: unknown)        => api.patch(`/admin/users/${id}`, data),

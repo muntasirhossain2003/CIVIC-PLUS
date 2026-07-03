@@ -21,10 +21,12 @@ function csvEscape(value: unknown): string {
 
 export const adminService = {
   // ── Users ──────────────────────────────────────────────────────────
-  async listUsers(page = 1, limit = 20, search?: string) {
-    const filter = search
-      ? { $or: [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] }
-      : {};
+  async listUsers(page = 1, limit = 20, search?: string, role?: string, departmentId?: string) {
+    const filter: Record<string, unknown> = {};
+    if (search) filter.$or = [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }];
+    if (role) filter.role = role;
+    if (departmentId) filter.departmentId = departmentId;
+
     const [data, total] = await Promise.all([
       User.find(filter).skip((page - 1) * limit).limit(limit).select('-__v').lean(),
       User.countDocuments(filter),

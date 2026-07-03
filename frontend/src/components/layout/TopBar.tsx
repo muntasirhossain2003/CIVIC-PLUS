@@ -8,7 +8,7 @@ import { useT } from '../../lib/useT';
 
 export function TopBar() {
   const { user } = useAuthStore();
-  const unread = useNotifStore((s) => s.unread);
+  const unread = useNotifStore((s) => s.unreadCount);
   const lang = useLangStore((s) => s.lang);
   const t = useT();
   const isBn = lang === 'bn';
