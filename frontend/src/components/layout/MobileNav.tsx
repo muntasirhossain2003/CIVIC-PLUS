@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   MapPin, BarChart3, Plus, LayoutDashboard, MoreHorizontal,
   Bell, ClipboardList, TrendingUp, Users, Building2, Tag,
-  ScrollText, LogOut, LogIn, Languages, X,
+  ScrollText, LogOut, LogIn, Languages, X, UserCog,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotifStore } from '../../store/notifStore';
@@ -49,6 +49,7 @@ export function MobileNav() {
         {
           items: [
             { to: '/notifications', icon: Bell, label: isBn ? 'বিজ্ঞপ্তি' : 'Notifications', badge: unread > 0 ? unread : undefined },
+            { to: '/profile',       icon: UserCog, label: isBn ? 'প্রোফাইল' : 'Profile' },
           ],
         },
         ...(user.role === 'staff' || user.role === 'admin' ? [{

@@ -70,6 +70,18 @@ export const adminController = {
     } catch (err) { handleError(res, err); }
   },
 
+  // ── Export ─────────────────────────────────────────────────────────
+  async exportIssues(req: AuthRequest, res: Response) {
+    try {
+      const status = req.query.status as string | undefined;
+      const category = req.query.category as string | undefined;
+      const csv = await adminService.exportIssuesCsv({ status, category });
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="issues-${Date.now()}.csv"`);
+      res.send(csv);
+    } catch (err) { handleError(res, err); }
+  },
+
   // ── Audit log ─────────────────────────────────────────────────────
   async listAuditLogs(req: AuthRequest, res: Response) {
     try {

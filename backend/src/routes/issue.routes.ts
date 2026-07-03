@@ -4,7 +4,7 @@ import { requireRole } from '../middleware/role.middleware';
 import { validate } from '../middleware/validate';
 import { apiLimiter } from '../middleware/rateLimiter';
 import { issueController } from '../controllers/issue.controller';
-import { createIssueSchema, updateIssueSchema, updateStatusSchema, addCommentSchema } from '../schemas/issue.schema';
+import { createIssueSchema, updateIssueSchema, updateStatusSchema, addCommentSchema, assignIssueSchema } from '../schemas/issue.schema';
 
 const router = Router();
 
@@ -26,5 +26,6 @@ router.post('/:id/comments',        authenticate, validate(addCommentSchema),   
 
 // Staff / Admin only
 router.patch('/:id/status', authenticate, requireRole('staff', 'admin'), validate(updateStatusSchema), issueController.updateStatus);
+router.patch('/:id/assign', authenticate, requireRole('staff', 'admin'), validate(assignIssueSchema), issueController.assign);
 
 export default router;

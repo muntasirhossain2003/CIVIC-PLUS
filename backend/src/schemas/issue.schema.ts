@@ -55,6 +55,13 @@ export const addCommentSchema = z.object({
   text: z.string().trim().min(1).max(500),
 });
 
+export const assignIssueSchema = z.object({
+  departmentId: z.string().min(1).optional(),
+  staffId:      z.string().min(1).nullable().optional(),
+}).refine((v) => v.departmentId !== undefined || v.staffId !== undefined, {
+  message: 'Provide departmentId and/or staffId',
+});
+
 export const presignedUrlSchema = z.object({
   filename:    z.string().min(1),
   contentType: z.enum(['image/jpeg', 'image/png', 'image/webp']),
@@ -66,4 +73,5 @@ export type UpdateStatusInput = z.infer<typeof updateStatusSchema>;
 export type ListIssuesInput   = z.infer<typeof listIssuesSchema>;
 export type NearbyInput       = z.infer<typeof nearbySchema>;
 export type AddCommentInput   = z.infer<typeof addCommentSchema>;
+export type AssignIssueInput  = z.infer<typeof assignIssueSchema>;
 export type PresignedUrlInput = z.infer<typeof presignedUrlSchema>;

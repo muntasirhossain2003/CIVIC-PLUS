@@ -90,4 +90,18 @@ export const authController = {
       res.json({ user });
     } catch (err) { handleError(res, err); }
   },
+
+  async updateMe(req: AuthRequest, res: Response) {
+    try {
+      const { name, phone, notificationPrefs } = req.body;
+      const update: Record<string, unknown> = {};
+      if (name !== undefined) update.name = name;
+      if (phone !== undefined) update.phone = phone;
+      if (notificationPrefs?.email !== undefined) update['notificationPrefs.email'] = notificationPrefs.email;
+      if (notificationPrefs?.inApp !== undefined) update['notificationPrefs.inApp'] = notificationPrefs.inApp;
+
+      const user = await User.findByIdAndUpdate(req.user!.id, { $set: update }, { new: true }).select('-__v');
+      res.json({ user });
+    } catch (err) { handleError(res, err); }
+  },
 };

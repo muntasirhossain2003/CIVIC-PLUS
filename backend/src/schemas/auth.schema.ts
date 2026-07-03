@@ -35,8 +35,18 @@ export const resetPasswordSchema = z.object({
   password: strongPassword,
 });
 
+export const updateMeSchema = z.object({
+  name:  z.string().trim().min(2).max(50).optional(),
+  phone: z.string().trim().optional(),
+  notificationPrefs: z.object({
+    email: z.boolean().optional(),
+    inApp: z.boolean().optional(),
+  }).optional(),
+});
+
 export type RegisterInput       = z.infer<typeof registerSchema>;
 export type ConfirmEmailInput   = z.infer<typeof confirmEmailSchema>;
 export type LoginInput          = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput  = z.infer<typeof resetPasswordSchema>;
+export type UpdateMeInput       = z.infer<typeof updateMeSchema>;

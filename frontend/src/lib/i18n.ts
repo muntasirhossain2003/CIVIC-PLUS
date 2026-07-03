@@ -15,6 +15,7 @@ export const translations = {
     nav_departments:   'Departments',
     nav_categories:    'Categories',
     nav_audit_logs:    'Audit Logs',
+    nav_profile:       'Profile',
 
     // Auth actions
     sign_in:       'Sign in',
@@ -108,6 +109,7 @@ export const translations = {
     nav_departments:   'বিভাগ',
     nav_categories:    'শ্রেণিসমূহ',
     nav_audit_logs:    'অডিট লগ',
+    nav_profile:       'প্রোফাইল',
 
     // Auth actions
     sign_in:        'সাইন ইন',

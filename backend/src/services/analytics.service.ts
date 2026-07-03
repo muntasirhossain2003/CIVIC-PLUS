@@ -53,8 +53,10 @@ export const analyticsService = {
   async adminStats() {
     const since = since30d();
 
-    const [publicData, overdueCount, byStatus, byDepartment, userGrowth, topReporters] = await Promise.all([
+    const [publicData, totalUsers, overdueCount, byStatus, byDepartment, userGrowth, topReporters] = await Promise.all([
       analyticsService.publicStats(),
+
+      User.countDocuments(),
 
       // Issues past their SLA deadline and not resolved
       Issue.countDocuments({
@@ -96,6 +98,24 @@ export const analyticsService = {
       ]),
     ]);
 
-    return { ...publicData, overdueCount, byStatus, byDepartment, userGrowth, topReporters };
+    // Reshape aggregation arrays into the maps/keys the admin dashboard UI consumes
+    const issuesByStatus = Object.fromEntries(byStatus.map((s) => [s._id, s.count]));
+    const issuesByCategory = Object.fromEntries(publicData.byCategory.map((c) => [c._id, c.count]));
+    const trend = publicData.recentTrend.map((t) => ({ date: t._id, reported: t.reported, resolved: t.resolved }));
+
+    return {
+      ...publicData,
+      totalUsers,
+      totalIssues: publicData.total,
+      resolvedIssues: publicData.resolved,
+      issuesByStatus,
+      issuesByCategory,
+      trend,
+      overdueCount,
+      byStatus,
+      byDepartment,
+      userGrowth,
+      topReporters,
+    };
   },
 };

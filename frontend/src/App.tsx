@@ -21,6 +21,7 @@ import { IssueDetail }  from './screens/issue-detail/IssueDetail';
 import { ReportFlow }   from './screens/report-flow/ReportFlow';
 import { Dashboard }    from './screens/dashboard/Dashboard';
 import { Notifications } from './screens/notifications/Notifications';
+import { Profile } from './screens/profile/Profile';
 
 // Staff screens
 import { StaffQueue }   from './screens/staff-queue/StaffQueue';
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/report"        element={<RequireAuth><ReportFlow /></RequireAuth>} />
             <Route path="/dashboard"     element={<RequireAuth><Dashboard /></RequireAuth>} />
             <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
+            <Route path="/profile"       element={<RequireAuth><Profile /></RequireAuth>} />
 
             {/* Staff */}
             <Route path="/staff/queue" element={

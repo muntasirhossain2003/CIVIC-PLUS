@@ -43,6 +43,7 @@ export const authApi = {
   login:         (data: unknown) => api.post('/auth/login', data),
   logout:        ()              => api.post('/auth/logout'),
   me:            ()              => api.get('/auth/me'),
+  updateMe:      (data: unknown) => api.patch('/auth/me', data),
   forgotPassword:(email: string) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data: unknown) => api.post('/auth/reset-password', data),
 };
@@ -56,6 +57,7 @@ export const issueApi = {
   update:       (id: string, data: unknown) => api.patch(`/issues/${id}`, data),
   delete:       (id: string) => api.delete(`/issues/${id}`),
   updateStatus: (id: string, data: unknown) => api.patch(`/issues/${id}/status`, data),
+  assign:       (id: string, data: unknown) => api.patch(`/issues/${id}/assign`, data),
   upvote:       (id: string) => api.post(`/issues/${id}/upvote`),
   follow:       (id: string) => api.post(`/issues/${id}/follow`),
   addComment:   (id: string, text: string) => api.post(`/issues/${id}/comments`, { text }),
@@ -82,4 +84,5 @@ export const adminApi = {
   createCategory:   (d: unknown)                        => api.post('/admin/categories', d),
   updateCategory:   (id: string, d: unknown)            => api.patch(`/admin/categories/${id}`, d),
   listAuditLogs:    (params?: Record<string, unknown>)  => api.get('/admin/audit-logs', { params }),
+  exportIssues:     (params?: Record<string, unknown>)  => api.get('/admin/issues/export', { params, responseType: 'blob' }),
 };

@@ -5,7 +5,7 @@ import { Follow } from '../models/Follow.model';
 import { Category } from '../models/Category.model';
 import {
   CreateIssueInput, UpdateIssueInput, UpdateStatusInput,
-  ListIssuesInput, NearbyInput, AddCommentInput,
+  ListIssuesInput, NearbyInput, AddCommentInput, AssignIssueInput,
 } from '../schemas/issue.schema';
 import { emitIssueNew, emitStatusChanged, emitNotification } from '../socket/events';
 
@@ -160,6 +160,33 @@ export const issueService = {
     }
 
     return issue;
+  },
+
+  async assign(id: string, input: AssignIssueInput, actorId: string) {
+    const issue = await Issue.findById(id);
+    if (!issue) fail('Issue not found', 404);
+
+    if (input.departmentId) issue.assignedDepartmentId = input.departmentId as any;
+    if (input.staffId !== undefined) issue.assignedStaffId = (input.staffId ?? undefined) as any;
+
+    // Assigning triages a fresh report into the queue
+    if (issue.status === 'submitted') {
+      issue.status = 'acknowledged';
+      issue.statusHistory.push({ status: 'acknowledged', changedBy: actorId as any, changedAt: new Date(), note: 'Assigned' });
+      emitStatusChanged(id, 'acknowledged');
+    }
+
+    await issue.save();
+
+    if (input.staffId) {
+      emitNotification(input.staffId, {
+        type: 'issue_assigned',
+        issueId: id,
+        issueTitle: issue.title,
+      });
+    }
+
+    return issue.populate(['assignedDepartmentId', 'assignedStaffId']);
   },
 
   async upvote(issueId: string, userId: string) {

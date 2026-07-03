@@ -40,6 +40,9 @@ router.get('/categories', adminController.listCategories);
 router.post('/categories', validate(createCategorySchema), adminController.createCategory);
 router.patch('/categories/:id', validate(updateCategorySchema), adminController.updateCategory);
 
+// Export
+router.get('/issues/export', adminController.exportIssues);
+
 // Audit log
 router.get('/audit-logs', adminController.listAuditLogs);
 

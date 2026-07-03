@@ -2,9 +2,21 @@ import { User } from '../models/User.model';
 import { Department } from '../models/Department.model';
 import { Category } from '../models/Category.model';
 import { AuditLog } from '../models/AuditLog.model';
+import { Issue } from '../models/Issue.model';
 
 function fail(message: string, status: number): never {
   throw Object.assign(new Error(message), { status });
+}
+
+const CSV_COLUMNS = [
+  'id', 'title', 'category', 'severity', 'status', 'address',
+  'lat', 'lng', 'reporterName', 'reporterEmail', 'upvoteCount',
+  'createdAt', 'resolvedAt', 'slaDeadline',
+] as const;
+
+function csvEscape(value: unknown): string {
+  const s = value === undefined || value === null ? '' : String(value);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 export const adminService = {
@@ -61,6 +73,43 @@ export const adminService = {
     if (!cat) fail('Category not found', 404);
     await AuditLog.create({ actorId, action: 'update_category', targetType: 'Category', targetId: id });
     return cat;
+  },
+
+  // ── Export ─────────────────────────────────────────────────────────
+  async exportIssuesCsv(filter: { status?: string; category?: string }) {
+    const query: Record<string, unknown> = {};
+    if (filter.status) query.status = filter.status;
+    if (filter.category) query.category = filter.category;
+
+    const issues = await Issue.find(query)
+      .populate('reporterId', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const rows = issues.map((i) => {
+      const reporter = i.reporterId as unknown as { name?: string; email?: string } | null;
+      const resolvedAt = i.statusHistory?.find((h) => h.status === 'resolved')?.changedAt;
+      return [
+        String(i._id),
+        i.title,
+        i.category,
+        i.severity,
+        i.status,
+        i.address,
+        i.location?.coordinates?.[1] ?? '',
+        i.location?.coordinates?.[0] ?? '',
+        reporter?.name ?? '',
+        reporter?.email ?? '',
+        i.upvoteCount,
+        i.createdAt.toISOString(),
+        resolvedAt ? new Date(resolvedAt).toISOString() : '',
+        i.slaDeadline ? new Date(i.slaDeadline).toISOString() : '',
+      ];
+    });
+
+    const header = CSV_COLUMNS.join(',');
+    const body = rows.map((r) => r.map(csvEscape).join(',')).join('\n');
+    return `${header}\n${body}\n`;
   },
 
   // ── Audit log ─────────────────────────────────────────────────────

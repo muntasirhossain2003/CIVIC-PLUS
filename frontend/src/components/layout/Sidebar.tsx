@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   MapPin, BarChart3, Plus, LayoutDashboard, Bell,
   ClipboardList, TrendingUp, Users, Building2, Tag,
-  ScrollText, LogOut, LogIn, Languages,
+  ScrollText, LogOut, LogIn, Languages, UserCog,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useLangStore } from '../../store/langStore';
@@ -16,6 +16,7 @@ function navItems(t: ReturnType<typeof useT>) {
     { label: t('nav_report'),        to: '/report',          icon: Plus,            roles: ['citizen','staff','admin'] },
     { label: t('nav_dashboard'),     to: '/dashboard',       icon: LayoutDashboard, roles: ['citizen','staff','admin'] },
     { label: t('nav_notifications'), to: '/notifications',   icon: Bell,            roles: ['citizen','staff','admin'] },
+    { label: t('nav_profile'),       to: '/profile',         icon: UserCog,         roles: ['citizen','staff','admin'] },
     { label: t('nav_staff_queue'),   to: '/staff/queue',     icon: ClipboardList,   roles: ['staff','admin'] },
     { label: t('nav_analytics'),     to: '/admin/analytics', icon: TrendingUp,      roles: ['admin'] },
     { label: t('nav_users'),         to: '/admin/users',     icon: Users,           roles: ['admin'] },
